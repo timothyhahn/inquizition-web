@@ -1,3 +1,8 @@
+from inquizition import app
+from flask import url_for, redirect, request, render_template, session, flash
+from forms import LoginForm, RegisterForm
+from database import db_session
+from models import Quiz
 
 ## HOW TO SIMPLY SHOW A STATIC PAGE
 @app.route('/')
@@ -37,6 +42,32 @@ def create_quiz():
     db_session.commit()    
     print quizName
     return '{"status": "OK", "quiz name": "'+quizName+'"}'
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        lForm = LoginForm(request.form, prefix='lForm')
+        if lForm.validate():
+            return redirect('/hello')
+        else:
+            flash('what')
+            rForm = RegisterForm(prefix='rForm')
+            return render_template('login.html', lForm=lForm, rForm=rForm)
+
+    if request.method == 'GET':
+        lForm = LoginForm(prefix='lForm')
+        rForm = RegisterForm(prefix='rForm')
+        return render_template('login.html', lForm=lForm, rForm=rForm)
+
+@app.route('/register', methods=['POST'])
+def register():
+    rForm = RegisterForm(request.form, prefix='rForm')
+
+    if rForm.validate():
+        return redirect('/hello')
+    else:
+        lForm = RegisterForm(prefix='lForm')
+        return render_template('login.html', lForm=lForm, rForm=rForm)
 
 
 ## TURN OFF DB

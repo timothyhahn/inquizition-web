@@ -1,5 +1,13 @@
 from flask.ext.script import Manager
+from flask_debugtoolbar import DebugToolbarExtension
+
 from inquizition import app
+import inquizition.settings as settings
+
+app.debug = settings.debug
+app.config['SECRET_KEY'] = settings.secret_key
+
+toolbar = DebugToolbarExtension(app)
 
 manager = Manager(app)
 
@@ -8,6 +16,19 @@ def gunicorn():
     "Runs this with gunicorn (Production server)"
     import subprocess
     subprocess.call(['./scripts/gunicorn.sh'])
+
+@manager.command
+def tornado():
+    "Runs this with tornado (Super non-blocking server)"
+    from tornado.wsgi import WSGIContainer
+    from tornado.httpserver import HTTPServer
+    from tornado.ioloop import IOLoop
+    from inquizition import app
+
+    http_server = HTTPServer(WSGIContainer(app))
+    http_server.listen(5000)
+    IOLoop.instance().start()
+    
 
 @manager.command
 def init_db():

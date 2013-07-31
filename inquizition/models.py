@@ -18,7 +18,7 @@ class Quiz(Base):
 class User(Base):
     __tablename__ = 'user'
     id = Column(Integer, primary_key=True)
-    name = Column(String(80))
+    username = Column(String(80))
 
 class Responses(Base):
     __tablename__ = 'response'

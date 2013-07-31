@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<!--[if IE 8]> 				 <html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+
+<head>
+	<meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>Inquizition - Nobody expects us!</title>
+
+  
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/foundation.min.css')}}">
+  
+
+  <script src="{{ url_for('static', filename='js/vendor/jquery.js')}}"></script>
+  <script src="{{ url_for('static', filename='js/vendor/zepto.js')}}"></script>
+
+  <script src="{{ url_for('static', filename='js/vendor/custom.modernizr.js')}}"></script>
+
+</head>
+<body>
+  {% block body %}{% endblock %}
+  <script src="{{ url_for('static', filename='js/foundation.min.js') }}"></script>
+  <script>
+    $(document).foundation();
+  </script>
+</body>

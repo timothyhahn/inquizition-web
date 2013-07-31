@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block body %}
+<div class="row">
+  <div class="large-12 columns">
+
+    <div class="section-container tabs" data-section>
+        <section>
+            <p class="title" data-section-title><a href="#panel1">Login</a></p>
+            <div class="content" data-section-content>
+                <h2>Login</h2>
+                <form action="{{ url_for('login') }}" method=post>
+                    {{ lForm.hidden_tag() }}
+                  <dl>
+
+                    <div class="large-4 columns">
+                      <dt>Username:
+                      <dd>{{ lForm.username }}
+
+                      {% if lForm.errors %}
+                      <small class="error">Unknown username - try registering it first</small>
+                      {% endif %}
+                      {% if rForm.errors %}
+                      <small class="error">Username already registered - try logging in.</small>
+                      {% endif %}
+                    </div>
+                        <hr />
+                    <div class="large-4 columns">
+                    <dd><input class="button" type=submit value=Login>
+                    </div>
+                    <br />
+                  </dl>
+                </form>
+            </div>
+        </section>
+        <section>
+            <p class="title" data-section-title><a href="#panel2">Register</a></p>
+            <div class="content" data-section-content>
+                <h2>Register</h2>
+                <form action="{{ url_for('register') }}" method=post>
+                    {{ rForm.hidden_tag() }}
+                  <dl>
+
+                    <div class="large-4 columns">
+                      <dt>Username:
+                      <dd>{{ rForm.username }}
+                    </div>
+                  <hr />
+                    <div class="large-4 columns">
+                    <dd><input class="button" type=submit value=Register>
+                    </div>
+                    <br />
+                  </dl>
+                </form>
+            </div>
+        </section>
+    </div>
+      </div>
+</div>
+{% endblock %}
