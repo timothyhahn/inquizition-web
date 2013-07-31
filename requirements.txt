@@ -1,0 +1,14 @@
+Flask==0.10.1
+Flask-Bcrypt==0.5.2
+Flask-Login==0.2.6
+Flask-Script==0.5.3
+Flask-WTF==0.8.4
+Jinja2==2.7
+MarkupSafe==0.18
+SQLAlchemy==0.8.2
+WTForms==1.0.4
+Werkzeug==0.9.3
+argparse==1.2.1
+itsdangerous==0.22
+py-bcrypt==0.3
+wsgiref==0.1.2
