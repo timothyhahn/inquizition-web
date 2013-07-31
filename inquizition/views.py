@@ -13,7 +13,10 @@ def home():
 ## SIMPLE ROUTE
 @app.route('/hello')
 def hello_world():
-    return 'Hello World!'
+    if 'username' in session:	
+    	return 'Hello ' + session['username']
+    else:
+	return 'Hello, world!'
 
 
 ## DB QUERY + TEMPLATE
@@ -48,6 +51,7 @@ def login():
     if request.method == 'POST':
         lForm = LoginForm(request.form, prefix='lForm')
         if lForm.validate():
+	    session['username'] = lForm.username.data
             return redirect('/hello')
         else:
             flash('what')
@@ -64,6 +68,7 @@ def register():
     rForm = RegisterForm(request.form, prefix='rForm')
 
     if rForm.validate():
+	session['username'] = rForm.username.data
         return redirect('/hello')
     else:
         lForm = RegisterForm(prefix='lForm')

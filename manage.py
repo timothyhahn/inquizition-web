@@ -1,4 +1,4 @@
-from flask.ext.script import Manager
+from flask.ext.script import Manager, Server
 from flask_debugtoolbar import DebugToolbarExtension
 
 from inquizition import app
@@ -10,6 +10,8 @@ app.config['SECRET_KEY'] = settings.secret_key
 toolbar = DebugToolbarExtension(app)
 
 manager = Manager(app)
+manager.add_command('runserver', Server(host='0.0.0.0'))
+
 
 @manager.command
 def gunicorn():
