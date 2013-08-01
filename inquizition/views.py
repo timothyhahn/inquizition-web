@@ -11,7 +11,7 @@ def home():
 ## SIMPLE ROUTE
 @app.route('/hello')
 def hello_world():
-    return 'Hello World!'
+    return 'Hello, world!'
 
 @app.route('/quiz/json', methods=['GET'])
 def list_quiz_json():
