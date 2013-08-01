@@ -7,6 +7,7 @@ import inquizition.settings as settings
 app.debug = settings.debug
 app.config['SECRET_KEY'] = settings.secret_key
 
+
 toolbar = DebugToolbarExtension(app)
 
 manager = Manager(app)
