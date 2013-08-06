@@ -9,6 +9,7 @@ class Quiz(Base):
     name = Column(String(50), nullable=False)
     start_time = Column(DateTime)
     end_time = Column(DateTime)
+    last_answered = Column(DateTime)
     questions = Column(String(100)) ## IDs stored as json
                                     ## For example: {1, 2, 3, 4}
     

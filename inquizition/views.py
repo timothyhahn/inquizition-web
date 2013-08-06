@@ -12,12 +12,12 @@ def home():
 
 
 # API
+
 ## GET
 @app.route('/quiz', methods=['GET'])
 def list_quizzes():
     ## List all quizzes that are available
     quizzes = Quiz.query.filter(Quiz.start_time > datetime.now())
-
 
     ## Convert to json
     if len(quizzes) > 0:
@@ -36,10 +36,11 @@ def list_quizzes():
 def find_quiz(quiz_id):
     ## Find quiz at id
     quiz = Quiz.query.filter(Quiz.id = quiz_id).first()
-    if quiz is None:
-        json = '{}'
-    else:
+
+    if quiz:
         json = quiz.json()
+    else:
+        json = '{}'
     ## Convert to json
     return json
 
@@ -68,8 +69,6 @@ def user_results(user_id):
     user = User.query.filter(User.id == user_id).first()
 
     if user is None:
-        json = '{}'
-    else:
         user_dict = dict()
         ## Get Username
         user_dict['name'] = user.name
@@ -89,6 +88,8 @@ def user_results(user_id):
             user_dict = list()
 
         json = json.dumps(user_dict)
+    else:
+        json = '{}'
 
     return json
 
@@ -96,10 +97,10 @@ def user_results(user_id):
 def get_question(question_id):
     ## Get question
     question = Question.query.filter(Question.id == question_id).first()
-    if question is None:
-        json = '{}'
-    else:
+    if question:
         json = question.json()
+    else:
+        json = '{}'
 
     ## Convert to json
     return json
@@ -111,10 +112,10 @@ def get_random_question():
     rowCount = int(query.count())
     question = query.offset(int(rowCount*random.random())).first()
 
-    if question is None:
-        json = '{}'
-    else:
+    if question:
         json = question.json()
+    else:
+        json = '{}'
 
     ## Convert to JSON
     return json
@@ -122,30 +123,75 @@ def get_random_question():
 ## POST
 @app.route('/quiz/<int:quiz_id>', methods=['POST'])
 def answer_quiz(quiz_id):
-    ## Get user name from request
+    ## Get user from request
+    user = User.query.filter(User.id == (str)request.form['user_id']).first()
+
+    ## Get question from request
+    question = User.query.filter(Question.id == (str).request.form['question_id'])
     ## Get answer from request
-    ## Find the next question to be answered
+    answer = (str) request.form['answer']
     ## Answer quiz
+    quiz = Quiz.query.filter(Quiz.id == quiz_id).first()
     ## Store response
+    response = Response.query.filter(Response.quiz_id == quiz_id).filter(Response.user_id == user.id).filter(Response.question_id == question.id)
+
+    response.user_response = answer
+
+    now = datetime.now()
+    then = quiz.last_answered
+
+    response.time_elapsed = now - then
+    quiz.last_answered = datetime.now()
+
+    result_dict = dict()
     ## Find out if that response is correct
+    if(response.user_response == response.correct_response):
+        result_dict['correct'] = "True"
+    else:
+        result_dict['correct'] = "False"
+
+    json = json.dumps(result_dict)
+    db_session.commit()
     return json
 
 @app.route('/quiz/create/', methods=['POST'])
 def create_quiz():
     ## Create quiz
+    quiz_name = (str)(request.form['quiz_name'])
+    quiz = Quiz(name=quiz_name)
     ## Pick questions for that quiz
-    ## Join creator to quiz id
-    return json
+    question_list = list()
+    for index in range(0,10):
+        ## pick random question
+        qid = 1
+        question_list.append(qid)
+
+    quiz.questions = json.dumps(question_list)
+
+    start_time = datetime.now() + datetime.timedelta(minutes=1)
+    end_time = start_time + datetime.timedelta(minutes=10)
+
+    db_session.add(quiz)
+    db_session.commit()
+    ## Join creator to quiz
+    return redirect(url_for('join_quiz'),quiz_id=quiz.id))
 
 @app.route('/quiz/join/<int:quiz_id>', methods=['POST'])
 def join_quiz(quiz_id):
     ## Get user from request
+    user = User.query.filter(User.id == request.form['user_id']).first()
     ## Create responses for user
+    for index in range(0,10):
+        print "TODO"
+        response = Response(question_id=qid, user_id=user.id, quiz_id=quiz.id)
+        response.correct_response="TODO"
+        db_session.add(response)
+
     ## Store responses for user
+    db_session.commit()
     print ""
 
 ## TODO
-
 ## * Login
 ## * Register
 
