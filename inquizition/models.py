@@ -1,4 +1,6 @@
 from sqlalchemy import Column, Integer, String, DateTime, Boolean, ForeignKey
+from sqlalchemy.orm import relationship, backref
+from flask import jsonify
 from database import Base
 import json
 
@@ -10,8 +12,11 @@ class Quiz(Base):
     start_time = Column(DateTime)
     end_time = Column(DateTime)
     last_answered = Column(DateTime)
+
     questions = Column(String(100)) ## IDs stored as json
                                     ## For example: {1, 2, 3, 4}
+    responses = relationship('Response', backref='quiz')
+    results = relationship('Result', backref='quiz')
     
     def __init__(self, name=None):
         self.name = name
@@ -22,7 +27,10 @@ class Quiz(Base):
 class User(Base):
     __tablename__ = 'user'
     id = Column(Integer, primary_key=True)
-    username = Column(String(80), nullable=False)
+    name = Column(String(80), nullable=False)
+    responses = relationship('Response', backref='user')
+    results = relationship('Result', backref='user')
+
     
     def __init__(self, name=None):
         self.name = name
@@ -41,10 +49,10 @@ class Response(Base):
     correct_response = Column(String(1),nullable=False)
     time_elapsed = Column(DateTime)
 
-    def __init__(self, question_id, user_id, quiz_id):
-        this.user_id = user_id
-        this.quiz_id = quiz_id
-        this.answered = False
+    def __init__(self, question_id=None, user_id=None, quiz_id=None):
+        self.user_id = user_id
+        self.quiz_id = quiz_id
+        self.answered = False
         
     def __repr__(self):
         return '<Response %d>' % (self.id)
@@ -58,10 +66,10 @@ class Result(Base):
     date = Column(DateTime, nullable=False)
 
     def __init__(self, user_id, quiz_id, score):
-        this.user_id = user_id
-        this.quiz_id = quiz_id
-        this.score = score
-        this.date = datetime.datetime.now
+        self.user_id = user_id
+        self.quiz_id = quiz_id
+        self.score = score
+        self.date = datetime.datetime.now
         
     def __repr__(self):
         return '<Result %d>' % (self.id)
@@ -75,18 +83,23 @@ class Question(Base):
     other_answer1 = Column(String(120))
     other_answer2 = Column(String(120))
     other_answer3 = Column(String(120))
+    responses = relationship('Response', backref='question')
 
-    def __init__(self, text):
-        this.text = text
-        
+    def __init__(self, text=None, correct_answer=None, other_answer1=None, other_answer2=None, other_answer3=None):
+        self.text = text
+        self.correct_answer = correct_answer
+        self.other_answer1 = other_answer1
+        self.other_answer2 = other_answer2
+        self.other_answer3 = other_answer3
+
     def __repr__(self):
         return '<Question %r>' % (self.text)
 
     def json(self):
         question = dict()
-        answers = [correct_answer, other_answer1, other_answer2, other_answer3]
+        answers = [self.correct_answer, self.other_answer1, self.other_answer2, self.other_answer3]
 
-        question['questionText'] = text
-        question['questionID'] = id
+        question['questionText'] = self.text
+        question['questionID'] = self.id
         question['answers'] = answers
-        return json.dumps(question)
+        return jsonify(question)

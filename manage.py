@@ -10,6 +10,7 @@ app.config['SECRET_KEY'] = settings.secret_key
 
 toolbar = DebugToolbarExtension(app)
 
+
 manager = Manager(app)
 manager.add_command('runserver', Server(host='0.0.0.0'))
 
@@ -39,6 +40,13 @@ def init_db():
     print "Setting up DB"
     from inquizition.database import init_db
     init_db()
+
+@manager.command
+def clear_db():
+    "Clears the DB"
+    print "Clearing DB"
+    from inquizition.database import clear_db
+    clear_db()
 
 
 if __name__ == "__main__":
