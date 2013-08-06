@@ -6,7 +6,7 @@ app = Flask(__name__,static_url_path="/app", static_folder="app")
 if debug:
     from flask.ext.admin import Admin
     from flask.ext.admin.contrib.sqlamodel import ModelView
-    from models import User, Quiz, Question, Response, Result
+    from models import User, Quiz, Question, Response, Result, Answer
     from database import db_session
     DEBUG_TB_INTERCEPT_REDIRECTS = False
     admin = Admin(app)
@@ -15,6 +15,7 @@ if debug:
     admin.add_view(ModelView(Question, db_session))
     admin.add_view(ModelView(Response, db_session))
     admin.add_view(ModelView(Result, db_session))
+    admin.add_view(ModelView(Answer, db_session))
 
 
 import inquizition.views

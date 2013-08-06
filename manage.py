@@ -42,6 +42,13 @@ def init_db():
     init_db()
 
 @manager.command
+def dummy_db():
+    "Adds dummy questions to the DB"
+    print "Generating 100 questions for the DB"
+    from inquizition.helpers import gen_dummy_data
+    gen_dummy_data()
+
+@manager.command
 def clear_db():
     "Clears the DB"
     print "Clearing DB"

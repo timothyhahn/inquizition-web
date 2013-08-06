@@ -41,18 +41,17 @@ class User(Base):
 class Response(Base):
     __tablename__ = 'response'
     id = Column(Integer, primary_key=True)
-    answered = Column(Boolean)
     question_id = Column(Integer, ForeignKey('question.id'), nullable=False)
     user_id = Column(Integer, ForeignKey('user.id'), nullable=False)
     quiz_id = Column(Integer, ForeignKey('quiz.id'), nullable=False)
-    user_response = Column(String(1))
-    correct_response = Column(String(1),nullable=False)
+    user_response = Column(Integer)
     time_elapsed = Column(DateTime)
 
-    def __init__(self, question_id=None, user_id=None, quiz_id=None):
+    def __init__(self, question_id=None, user_id=None, quiz_id=None, user_response=None):
         self.user_id = user_id
         self.quiz_id = quiz_id
         self.answered = False
+        self.user_response = user_response
         
     def __repr__(self):
         return '<Response %d>' % (self.id)
@@ -65,7 +64,7 @@ class Result(Base):
     score = Column(Integer)
     date = Column(DateTime, nullable=False)
 
-    def __init__(self, user_id, quiz_id, score):
+    def __init__(self, user_id, quiz_id, score=None):
         self.user_id = user_id
         self.quiz_id = quiz_id
         self.score = score
@@ -79,18 +78,12 @@ class Question(Base):
     __tablename__ = 'question'
     id = Column(Integer, primary_key=True)
     text = Column(String(120), nullable=False)
-    correct_answer = Column(String(120))
-    other_answer1 = Column(String(120))
-    other_answer2 = Column(String(120))
-    other_answer3 = Column(String(120))
+    correct_answer_id = Column(Integer)
     responses = relationship('Response', backref='question')
+    answers = relationship('Answer', backref='question')
 
-    def __init__(self, text=None, correct_answer=None, other_answer1=None, other_answer2=None, other_answer3=None):
+    def __init__(self, text=None):
         self.text = text
-        self.correct_answer = correct_answer
-        self.other_answer1 = other_answer1
-        self.other_answer2 = other_answer2
-        self.other_answer3 = other_answer3
 
     def __repr__(self):
         return '<Question %r>' % (self.text)
@@ -103,3 +96,13 @@ class Question(Base):
         question['questionID'] = self.id
         question['answers'] = answers
         return jsonify(question)
+
+class Answer(Base):
+    __tablename__ = 'answer'
+    id = Column(Integer, primary_key=True)
+    text = Column(String(120), nullable=False)
+    question_id = Column(Integer, ForeignKey('question.id'), nullable=False)
+
+    def __init(self,text=None, question_id = None):
+        self.text = text
+        self.question_id = question_id
