@@ -31,6 +31,18 @@ def get_quizzes():
         json_results = jsonify(dict())
     return json_results
 
+@app.route('/name')
+def get_random_name():
+    f = open('wordlist','r')
+    words = []
+    for line in f:
+        words.append(line.strip('\n'))
+    f.close()
+    
+    word1 = str(words[random.randint(0, len(words))]).capitalize()
+    word2 = str(words[random.randint(0, len(words))]).capitalize()
+    return '%s %s' % (word1, word2)
+
 @app.route('/quiz/<int:quiz_id>',methods=['GET'])
 def get_quiz(quiz_id):
     ## Find quiz at id
