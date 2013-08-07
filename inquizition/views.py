@@ -15,7 +15,7 @@ def home():
 
 ## GET
 @app.route('/quiz', methods=['GET'])
-def list_quizzes():
+def get_quizzes():
     ## List all quizzes that are available
     quizzes = Quiz.query.filter(Quiz.start_time > datetime.now())
 
@@ -32,19 +32,19 @@ def list_quizzes():
     return json_results
 
 @app.route('/quiz/<int:quiz_id>',methods=['GET'])
-def find_quiz(quiz_id):
+def get_quiz(quiz_id):
     ## Find quiz at id
     quiz = Quiz.query.get(quiz_id)
 
     if quiz:
-        json_results = quiz.json()
+        json_results = jsonify(quiz.data())
     else:
         json_results = jsonify(dict())
     ## Convert to json
     return json_results
 
 @app.route('/quiz/results/<int:quiz_id>',methods=['GET'])
-def quiz_results(quiz_id):
+def get_quiz_results(quiz_id):
     ## Find results for quiz and order them by score
     results = Result.query.filter(Result.quiz_id == quiz_id).order_by(Result.score.desc())
 
@@ -54,16 +54,16 @@ def quiz_results(quiz_id):
         results_dict['results'] = list()
 
         for result in results:
-            results_dict['results'].append(json.loads(result.json()))
+            results_dict['results'].append(result.data())
 
-        json_results = json.jsonify(results_dict)
+        json_results = jsonify(results_dict)
     else:
         json_results = jsonify(dict())
 
     return json_results
 
 @app.route('/user/<int:user_id>', methods=['GET'])
-def user_results(user_id):
+def get_user_results(user_id):
     ## Get User
     user = User.query.get(user_id)
 
@@ -79,7 +79,7 @@ def user_results(user_id):
 
             ## Add results to a list
             for result in results:
-                results_list.append(json.loads(result.json()))
+                results_list.append(result.data())
 
             ## Add results list to user dictionary that wil be dumped to JSON
             user_dict['results'] = results_list
@@ -97,7 +97,7 @@ def get_question(question_id):
     ## Get question
     question = Question.query.get(question_id)
     if question:
-        json_results = question.json()
+        json_results = jsonify(question.data())
     else:
         json_results = jsonify(dict())
 
@@ -112,7 +112,7 @@ def get_random_question():
     question = query.offset(int(rowCount*random.random())).first()
 
     if question:
-        json_results = question.json()
+        json_results = jsonify(question.data())
     else:
         json_results = jsonify(dict())
 
@@ -147,8 +147,6 @@ def answer_quiz(quiz_id):
     result_dict = dict()
     ## Find out if that response is correct
     correct_answer = Answer.query.get(question.correct_answer_id)
-    print answer
-    print correct_answer.id
     if(answer == correct_answer.id):
         result_dict['correct'] = 'True'
     else:
@@ -167,25 +165,26 @@ def create_quiz():
     quiz = Quiz(name=quiz_name)
     ## Pick questions for that quiz
     question_list = list()
-    #for index in range(0,10):
-        ## pick random question
-   #     qid = 1
-   #     question_list.append(qid)
-    question_list = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    question_count = db_session.query(Question).count()
+
+    for _ in range(0,10):
+        searching = True
+        while searching:
+            number = random.randint(1, question_count)
+            if number not in question_list:
+                question_list.append(number)
+                searching = False
 
     quiz.questions = json.dumps(question_list)
 
     quiz.start_time = datetime.now() + timedelta(minutes=1)
-    print quiz.start_time
     quiz.end_time = quiz.start_time + timedelta(minutes=10)
-    print quiz.end_time
     quiz.last_answered = quiz.start_time
 
     db_session.add(quiz)
     db_session.commit()
     ## Join creator to quiz
     return join_quiz(quiz.id, request.form['user_id'])
-    #return redirect(url_for('join_quiz'),quiz_id=quiz.id)
 
 @app.route('/quiz/join/<int:quiz_id>', methods=['GET','POST'])
 def join_quiz(quiz_id, user_id=None):
@@ -194,10 +193,11 @@ def join_quiz(quiz_id, user_id=None):
         user = User.query.get(request.form['user_id'])
     else:
         user = User.query.get(user_id)
+    quiz = Quiz.query.get(quiz_id)
     ## Create responses for user
     for index in range(0,10):
-        print "TODO"
-        response = Response(question_id=index, user_id=user.id, quiz_id=quiz_id)
+        questions = json.loads(quiz.questions)
+        response = Response(question_id=questions[index], user_id=user.id, quiz_id=quiz_id)
         response.correct_response="A"
         db_session.add(response)
 

@@ -28,16 +28,28 @@ class Quiz(Base):
         return '<Quiz %r>' % (self.name)
 
     def info(self):
-        quiz = dict()
-        quiz['name'] = self.name
-        quiz['startTime'] = str(self.start_time)
-        quiz['secondsLeft'] = str(self.start_time - datetime.now())
-        return json.dumps(quiz)
+        quiz_dict = dict()
+        quiz_dict['name'] = self.name
+        quiz_dict['startTime'] = str(self.start_time)
+        quiz_dict['secondsLeft'] = str(self.start_time - datetime.now())
+        return quiz
 
-    def json(self):
+    def data(self):
         ## TODO
         ## Get all questions from quiz
-        return "HEYO"
+        quiz_dict = dict()
+        quiz_dict['name'] = self.name
+        quiz_dict['startTime'] = str(self.start_time)
+        quiz_dict['secondsLeft'] = str(self.start_time - datetime.now())
+
+        question_id_list = json.loads(self.questions)
+        questions_list = list()
+        for question_id in question_id_list:
+            question = Question.query.get(question_id)
+            questions_list.append(question.data())
+        quiz_dict['questions'] = questions_list
+
+        return quiz_dict
         
 
 class User(Base):
@@ -106,7 +118,7 @@ class Question(Base):
     def __repr__(self):
         return '<Question %r>' % (self.text)
 
-    def json(self):
+    def data(self):
         question = dict()
         answer_list = list()
         for answer in Answer.query.filter(Answer.question_id == self.id):
@@ -118,7 +130,7 @@ class Question(Base):
         question['questionText'] = self.text
         question['questionID'] = self.id
         question['answers'] = answer_list
-        return jsonify(question)
+        return question
 
 class Answer(Base):
     __tablename__ = 'answer'
@@ -130,8 +142,8 @@ class Answer(Base):
         self.text = text
         self.question_id = question_id
     
-    def json(self):
+    def data(self):
         answer['answerID'] = self.id
         answer['text'] = self.text
-        return jsonify(answer)
+        return answer
 
