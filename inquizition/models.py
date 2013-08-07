@@ -1,7 +1,8 @@
 from sqlalchemy import Column, Integer, String, DateTime, Boolean, ForeignKey
 from sqlalchemy.orm import relationship, backref
+from datetime import datetime
 from flask import jsonify
-from database import Base
+from database import Base, db_session
 import json
 
 
@@ -18,11 +19,26 @@ class Quiz(Base):
     responses = relationship('Response', backref='quiz')
     results = relationship('Result', backref='quiz')
     
-    def __init__(self, name=None):
+    def __init__(self, name=None, start_time=None, end_time=None):
         self.name = name
+        self.start_time = start_time
+        self.end_time = end_time
 
     def __repr__(self):
         return '<Quiz %r>' % (self.name)
+
+    def info(self):
+        quiz = dict()
+        quiz['name'] = self.name
+        quiz['startTime'] = str(self.start_time)
+        quiz['secondsLeft'] = str(self.start_time - datetime.now())
+        return json.dumps(quiz)
+
+    def json(self):
+        ## TODO
+        ## Get all questions from quiz
+        return "HEYO"
+        
 
 class User(Base):
     __tablename__ = 'user'
@@ -45,13 +61,15 @@ class Response(Base):
     user_id = Column(Integer, ForeignKey('user.id'), nullable=False)
     quiz_id = Column(Integer, ForeignKey('quiz.id'), nullable=False)
     user_response = Column(Integer)
-    time_elapsed = Column(DateTime)
+    time_elapsed = Column(Integer)
 
     def __init__(self, question_id=None, user_id=None, quiz_id=None, user_response=None):
+        self.question_id = question_id
         self.user_id = user_id
         self.quiz_id = quiz_id
         self.answered = False
         self.user_response = user_response
+        self.time_elapsed = None
         
     def __repr__(self):
         return '<Response %d>' % (self.id)
@@ -90,11 +108,16 @@ class Question(Base):
 
     def json(self):
         question = dict()
-        answers = [self.correct_answer, self.other_answer1, self.other_answer2, self.other_answer3]
+        answer_list = list()
+        for answer in Answer.query.filter(Answer.question_id == self.id):
+            answer_dict = dict()
+            answer_dict['answerID'] = answer.id
+            answer_dict['answerText'] = answer.text
+            answer_list.append(answer_dict)
 
         question['questionText'] = self.text
         question['questionID'] = self.id
-        question['answers'] = answers
+        question['answers'] = answer_list
         return jsonify(question)
 
 class Answer(Base):
@@ -103,6 +126,12 @@ class Answer(Base):
     text = Column(String(120), nullable=False)
     question_id = Column(Integer, ForeignKey('question.id'), nullable=False)
 
-    def __init(self,text=None, question_id = None):
+    def __init__(self,text=None, question_id = None):
         self.text = text
         self.question_id = question_id
+    
+    def json(self):
+        answer['answerID'] = self.id
+        answer['text'] = self.text
+        return jsonify(answer)
+
