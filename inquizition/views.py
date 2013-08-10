@@ -25,8 +25,9 @@ def get_quizzes():
         quizzes_dict['quizzes'] = list()
 
         for quiz in quizzes:
-            quizzes_dict['quizzes'].append(json.loads(quiz.info()))
+            quizzes_dict['quizzes'].append(quiz.info())
             json_results = jsonify(quizzes_dict)
+
     else: 
         json_results = jsonify(dict())
     return json_results

@@ -31,16 +31,12 @@ class Quiz(Base):
         quiz_dict = dict()
         quiz_dict['name'] = self.name
         quiz_dict['startTime'] = str(self.start_time)
-        quiz_dict['secondsLeft'] = str(self.start_time - datetime.now())
-        return quiz
+        seconds_left = self.start_time - datetime.now()
+        quiz_dict['secondsLeft'] = str(seconds_left.seconds)
+        return quiz_dict
 
     def data(self):
-        ## TODO
-        ## Get all questions from quiz
-        quiz_dict = dict()
-        quiz_dict['name'] = self.name
-        quiz_dict['startTime'] = str(self.start_time)
-        quiz_dict['secondsLeft'] = str(self.start_time - datetime.now())
+        quiz_dict = self.info()
 
         question_id_list = json.loads(self.questions)
         questions_list = list()
