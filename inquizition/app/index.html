@@ -9,6 +9,7 @@
     <meta charset="utf-8">
 
     <title>Inquizition - Nobody expects us!</title>
+  <link rel="stylesheet" href="css/foundation.css">
 
     <script src="js/vendor/custom.modernizr.js"></script>
     <script src="js/vendor/jquery.js"></script>
@@ -19,29 +20,78 @@
     <script src="js/Inquizition.js"></script>
 
     <script type="text/template" id="list-template">
-        <h1>Quizzes</h1>
+        <h1>Click on a quiz to join:</h1>
         <ul class="quizzes"></ul>
+        <a href="#" onClick="generateQuiz()" class="large button expand" data-reveal-id="quizCreateModal">Create new quiz</a>
     </script>
 
     <script type="text/template" id="quiz-template">
-      <span class="quiz-name"><%= name %></span>
-      <span class="quiz-seconds"><%= secondsLeft %></span>
+      <a href="#" class="large button expand">
+        <div class="quiz-name"><%= name %></div>
+        <div class="quiz-seconds">Starting in: <%= secondsLeft %> seconds</div>
+      </a>
     </script>
 
     <script type="application/javascript">
+      // Kicks off quiz list fetch
       jQuery(function() {
             window.list.fetch();
+            setInterval(function() {
+              window.list.fetch({update: true});
+              },1000);
         });
+
+
+    // Gets potential quiz names
+    function generateQuiz() {
+        this.quizName = "";
+        $.get('/name', function(data) {
+            this.quizName = data;
+            }).done(function() {
+              $('input#quizName').val(this.quizName);
+              });
+    }
+
+    // Sends POST to create quiz
+    function createQuiz(){
+        this.quizName = $('input#quizName').val();
+        $.post('/quiz/create', { quiz_name: this.quizName, user_id: 1});
+        $('#quizCreateModal').foundation('reveal', 'close');
+        window.list.fetch({update: true});
+    }
+
+
+    // Key Handlers
+    jQuery(function() {
+        // If Enter is pressed inside quiz name modal input
+        $('input#quizName').keypress(function(e) {
+        if(e.which == 13) {
+            createQuiz();
+         }
+        });
+    });
+
     </script>
 
   </head>
 
   <body>
+
+    <div id="quizCreateModal" class="reveal-modal">
+        <div class="large-12 columns">
+            <label>Quiz Name:</label>
+            <input type="text" placeholder="large-12.columns" id="quizName">
+        </div>
+        <a class="medium button" onClick="createQuiz()">Create Quiz</a>
+        <a class="close-reveal-modal">&#215;</a>
+    </div>
+
     <div id="container">
     </div>
-    <script>
+        <script>
          $(document).foundation();
-    </script>
 
+    </script>
+ 
   </body>
 </html>
