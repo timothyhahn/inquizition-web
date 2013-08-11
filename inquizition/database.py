@@ -25,3 +25,14 @@ def init_db():
 
 def clear_db():
     Base.metadata.drop_all(engine)
+
+def purge_db():
+    from models import Quiz, Response
+    from datetime import datetime
+    quizzes = Quiz.query.filter(Quiz.end_time < datetime.now())
+    for quiz in quizzes:
+        responses = Response.query.filter(Response.quiz_id == quiz.id)
+        for response in responses:
+            db_session.delete(response)
+        db_session.delete(quiz)
+    db_session.commit()

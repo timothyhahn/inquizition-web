@@ -55,6 +55,13 @@ def clear_db():
     from inquizition.database import clear_db
     clear_db()
 
+@manager.command
+def purge_db():
+    "Purges DB of old quizzes"
+    print "Purging DB of old quizzes"
+    from inquizition.database import purge_db
+    purge_db()
+
 
 if __name__ == "__main__":
     manager.run()

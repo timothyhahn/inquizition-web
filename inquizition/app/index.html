@@ -26,19 +26,28 @@
     </script>
 
     <script type="text/template" id="quiz-template">
-      <a href="#" class="large button expand">
-        <div class="quiz-name"><%= name %></div>
-        <div class="quiz-seconds">Starting in: <%= secondsLeft %> seconds</div>
-      </a>
+      <% if (parseInt(secondsLeft) > 0) { %>
+        <a href="#" class="large button expand">
+          <div class="quiz-name"><%= name %></div>
+          <div class="quiz-seconds">Starting in: <%= secondsLeft %> seconds </div>
+        </a>
+      <% } %>
     </script>
 
     <script type="application/javascript">
       // Kicks off quiz list fetch
       jQuery(function() {
             window.list.fetch();
+
+            // Count down every 1 second
+            setInterval(function() {
+              window.list.each(function(quiz, index) {quiz.updateSeconds()});
+            }, 1000);
+
+            // Update every 10 seconds
             setInterval(function() {
               window.list.fetch({update: true});
-              },1000);
+              },10000);
         });
 
 

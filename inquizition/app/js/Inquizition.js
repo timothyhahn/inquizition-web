@@ -1,5 +1,10 @@
 (function($) {
     window.Quiz = Backbone.Model.extend({
+        updateSeconds: function() {
+            var secondsLeft = parseInt(this.get('secondsLeft'));
+            secondsLeft = secondsLeft - 1;
+            this.set({'secondsLeft': secondsLeft});
+        },
     });
 
     window.Quizzes = Backbone.Collection.extend({
