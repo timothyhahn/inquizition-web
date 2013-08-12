@@ -61,7 +61,7 @@ def load_questions():
         db_session.refresh(ca)
         q.correct_answer_id = ca.id
         db_session.add(q)
-        db_session.commit()
+    db_session.commit()
 
 
 def generate_results(quiz_id):

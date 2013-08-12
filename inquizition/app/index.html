@@ -191,7 +191,6 @@
             }).done(function(data) {
             window.user_id = data.id;
 
-            console.log(window.user_id);
             window.username = data.name;
             createCookie('user_id', data.id, 7);
             createCookie('username', data.name, 7);
@@ -234,8 +233,18 @@
       </ul>
 
       <section class="top-bar-section">
+        <ul class="left show-for-medium-down">
+            <li class="has-dropdown">
+                <a href="#">User</a>
+                <ul class="dropdown">
+                  <li><label>User Actions</label></li>
+                  <li><a href="#">Results</a></li>
+                  <li><a href="#" onClick="logout()">Logout</a></li>
+                </ul>
+            </li>
+        </ul>
         <!-- Right Nav Section -->
-        <ul class="right">
+        <ul class="right show-for-large-up">
             <li class="has-dropdown">
                 <a href="#">User</a>
                 <ul class="dropdown">
