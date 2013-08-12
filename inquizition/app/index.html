@@ -9,7 +9,8 @@
     <meta charset="utf-8">
 
     <title>Inquizition - Nobody expects us!</title>
-  <link rel="stylesheet" href="css/foundation.css">
+  <link rel="stylesheet" href="css/foundation.min.css">
+  <link rel="stylesheet" href="css/general_foundicons.css">
 
     <script src="js/vendor/custom.modernizr.js"></script>
     <script src="js/vendor/jquery.js"></script>
@@ -20,9 +21,10 @@
     <script src="js/Inquizition.js"></script>
 
     <script type="text/template" id="list-template">
+
         <h1>Click on a quiz to join:</h1>
         <ul class="quizInfo"></ul>
-        <a href="#" onClick="generateQuiz()" class="large button expand" data-reveal-id="quizCreateModal">Create new quiz</a>
+        <a href="#" onClick="generateQuiz()" class="large button expand" data-reveal-id="quizCreateModal"><i class="foundicon-plus"></i></a>
     </script>
 
     <script type="text/template" id="results-template">
@@ -104,6 +106,11 @@
         $('#createQuizButton').removeClass('disabled');
             });
             }
+
+    function refreshQuiz(){
+        window.list.fetch({update: true});
+
+    }
 
     function loginUser() {
         window.user_id = undefined;
