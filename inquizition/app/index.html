@@ -95,20 +95,6 @@
 
     <script type="application/javascript">
       // Kicks off quiz list fetch
-      jQuery(function() {
-            window.list.fetch();
-
-            // Count down every 1 second
-            window.listCountInterval = window.setInterval(function() {
-              window.list.each(function(quiz, index) {quiz.updateSeconds()});
-            }, 1000);
-
-            // Update every 10 seconds
-            window.listUpdateInterval = window.setInterval(function() {
-              window.list.fetch({update: true});
-              },10000);
-        });
-
 
     // Gets potential quiz names
     function generateQuiz() {
@@ -145,6 +131,7 @@
               window.user_id = data.id;
               $('#loginModal').foundation('reveal', 'close');
               createCookie('user_id', data.id, 7);
+              createCookie('username', data.name, 7);
               });
     }
 
@@ -189,13 +176,33 @@
         });
 
     });
+    function logout(){
+        eraseCookie('user_id');
+        eraseCookie('username');
+        window.user_id = undefined;
+        window.user_name = undefined;
+        validateUser();
+    }
 
     function validateUser() {
-        if(readCookie('user_id') != null) {
-            window.user_id = readCookie('user_id');
-        } 
+        if(readCookie('user_id') != null && readCookie('username') != null) {       
+            $.post('/login', {
+                username: readCookie('username')
+            }).done(function(data) {
+            window.user_id = data.id;
 
-        if(window.user_id == undefined) {
+            console.log(window.user_id);
+            window.username = data.name;
+            createCookie('user_id', data.id, 7);
+            createCookie('username', data.name, 7);
+            $('#loginModal').foundation('reveal', 'close');
+              });
+            
+        } else {
+            window.user_id == undefined;
+        }
+
+        if(window.user_id == undefined && readCookie('user_id') == null) {
             $('#loginModal').foundation('reveal', 'open', {
                 closeOnBackgroundClick: false ,
                 closeOnEsc: false,
@@ -203,12 +210,10 @@
               });
             
 
-            }
+        }
+            
     }
 
-    jQuery(function() {
-        validateUser();
-    });  
 
     </script>
 
@@ -236,7 +241,7 @@
                 <ul class="dropdown">
                   <li><label>User Actions</label></li>
                   <li><a href="#">Results</a></li>
-                  <li><a href="#">Logout</a></li>
+                  <li><a href="#" onClick="logout()">Logout</a></li>
                 </ul>
             </li>
         </ul>

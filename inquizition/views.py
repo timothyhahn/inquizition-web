@@ -58,6 +58,17 @@ def get_quiz(quiz_id):
     ## Convert to json
     return json_results
 
+@app.route('/quiz/seconds/<int:quiz_id>')
+def get_seconds(quiz_id):
+    quiz = Quiz.query.get(quiz_id)
+
+    if quiz:
+        results = str((quiz.start_time - datetime.now()).seconds)
+    else:
+        results =""
+
+    return results
+
 @app.route('/quiz/results/<int:quiz_id>',methods=['GET'])
 def get_quiz_results(quiz_id):
     ## Find results for quiz and order them by score
@@ -70,7 +81,6 @@ def get_quiz_results(quiz_id):
         results_dict['results'] = list()
 
         for result in results:
-            print result
             results_dict['results'].append(result.data())
 
         json_results = jsonify(results_dict)
@@ -187,7 +197,7 @@ def create_quiz():
     for _ in range(0,10):
         searching = True
         while searching:
-            number = random.randint(1, question_count)
+            number = random.randint(1, question_count - 1)
             if number not in question_list:
                 question_list.append(number)
                 searching = False

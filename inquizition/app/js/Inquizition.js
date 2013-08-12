@@ -256,25 +256,27 @@
             this.template = _.template($('#countdown-template').html());
 
             window.secondsLeft = options.secondsLeft;
-            //$('span.countdown').html(window.secondsLeft);
 
-            
-            decisecondsLeft = secondsLeft * 10;
+            window.decisecondsLeft = window.secondsLeft * 10;
             window.countDownInterval = window.setInterval(function() {
-                //console.log(decisecondsLeft);
-                if(decisecondsLeft > 1) { 
+                if(decisecondsLeft > 11) { 
                         decisecondsLeft--;
                         decisecondsTaken = 600 - decisecondsLeft;
                         percentage = decisecondsTaken / 6 + "%";
-                        //console.log(percentage);
                         $('span.meter').css("width", percentage);
-                        window.secondsLeft--;
-                        window.secondsLeft = parseInt(window.secondsLeft) - 1;
                 } else {
                     App.navigate('play?' + options.quiz_id,  true);
                 }
-                //$('span.countdown').html(window.secondsLeft);
             }, 100);
+
+            window.countDownUpdateInterval = window.setInterval(function() {
+                $.get('/quiz/seconds/' + options.quiz_id, function(data) {
+                    this.secondsLeft = data;
+                    }).done(function() {
+                        if(this.secondsLeft < 60)
+                            window.decisecondsLeft = this.secondsLeft * 10;
+                });
+            }, 5000);
         },
 
         render: function() {
@@ -298,7 +300,22 @@
             'results?:quizID': 'results',
         },
         home: function() {
+
+            validateUser();
             window.list.fetch();
+
+            // Count down every 1 second
+            window.listCountInterval = window.setInterval(function() {
+              window.list.each(function(quiz, index) {quiz.updateSeconds()});
+            }, 1000);
+
+            // Update every 10 seconds
+            window.listUpdateInterval = window.setInterval(function() {
+              window.list.fetch({update: true});
+              },10000);
+
+            window.clearInterval(window.resultsInterval);
+
             var $container = $('#container');
             $container.empty();
             $container.append(this.listView.render().el);
@@ -329,6 +346,7 @@
             var $container = $('#container');
             $container.empty();
 
+            window.clearInterval(window.countDownUpdateInterval);
             window.clearInterval(window.countDownInterval);
             this.questions = new Questions(quizID);
             window.questionsView = new QuestionsView({collection:this.questions});

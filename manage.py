@@ -49,11 +49,19 @@ def dummy_db():
     gen_dummy_data()
 
 @manager.command
+def load_db():
+    "Loads questions from csv to the DB"
+    print  "Loading CSV into DB"
+    from inquizition.helpers import load_questions
+    load_questions()
+
+@manager.command
 def clear_db():
     "Clears the DB"
     print "Clearing DB"
     from inquizition.database import clear_db
     clear_db()
+
 
 @manager.command
 def purge_db():

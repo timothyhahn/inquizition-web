@@ -40,7 +40,28 @@ def load_questions():
             questions.append(question)
             print question
 
+    for question in questions:
+        q = Question(text=question['question'])
+        db_session.add(q)
+        db_session.flush()
+        db_session.refresh(q)
 
+        ca = Answer(text=str(question['correct_answer']), question_id=q.id)
+        oa1= Answer(text=str(question['answers'][0]), question_id=q.id)
+        oa2= Answer(text=str(question['answers'][1]), question_id=q.id)
+        oa3= Answer(text=str(question['answers'][2]), question_id=q.id)
+
+        answers = [ca, oa1, oa2, oa3]
+        random.shuffle(answers)
+
+        for a in answers:
+            db_session.add(a)
+
+        db_session.flush()
+        db_session.refresh(ca)
+        q.correct_answer_id = ca.id
+        db_session.add(q)
+        db_session.commit()
 
 
 def generate_results(quiz_id):
@@ -51,8 +72,6 @@ def generate_results(quiz_id):
         user_set.add(response.user_id)
 
     user_list = list(user_set)
-
-    print user_list
         
     scores_dict = dict()
     # For each user calculate result
@@ -66,7 +85,7 @@ def generate_results(quiz_id):
                 ## Get how long it took
                 score += 60 - response.time_elapsed
             else:
-                score -= 20
+                score -= 10
         scores_dict[user_id] = score
 
     for user_id in scores_dict.keys():
