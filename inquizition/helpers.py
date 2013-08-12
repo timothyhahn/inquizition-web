@@ -1,6 +1,47 @@
 from database import db_session
 from models import Question, Answer, Result, Response
-import random
+import random,csv
+
+def load_questions():
+    questions = list()
+    with open('trivia.csv', 'rb') as triviafile:
+        reader = csv.reader(triviafile, delimiter=',')
+        for row in reader:
+    
+            question = dict()
+            # Ensure Length
+            if len(row) != 6:
+                print "ERROR: Wrong number of fields"
+                print row
+                break
+    
+            question['question'] = row[0]
+            question['answers'] = row[1:5]
+            question['correct_answer'] = row[5]
+            
+            # Ensure correctness
+            if question['correct_answer'] not in question['answers']:
+                print "ERROR: Correct answer not one of given answers"
+                print "ERROR: Correct answer is '%s'" % (question['correct_answer'])
+                for a in question['answers']:
+                    print "ERROR: Possible answer is '%s'" % (a)
+    
+            answer_set = set(question['answers'])
+            correct_set = set((question['correct_answer'],))
+            question['answers'] = list(answer_set - correct_set)
+    
+            # Ensure removedness
+            if len(question['answers']) != 3:
+                print "ERROR: Correct still in answer"
+                print "ERROR: Correct answer is '%s'" % (question['correct_answer'])
+                for a in question['answers']:
+                    print "ERROR: Possible answer is '%s'" % (a)
+    
+            questions.append(question)
+            print question
+
+
+
 
 def generate_results(quiz_id):
     # Find all users who have responses

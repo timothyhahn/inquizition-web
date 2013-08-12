@@ -105,9 +105,11 @@
             _.bindAll(this, 'render');
             this.template = _.template($('#question-template').html());
             this.model.bind('change',this.render);
+
         },
         render: function() {
             var renderedContent = this.template(this.model.toJSON());
+            $(this.el).addClass('row wrap together');
             $(this.el).attr('id', 'question_' + this.model.get('id'));
             $(this.el).attr('style', 'display: none');
             $(this.el).html(renderedContent);
@@ -123,12 +125,10 @@
                 console.log($result);
                 $result.addClass('label');
                 if(data['correct'] == "True"){
-                    console.log("HI");
                     $result.addClass('success');
                     $result.removeClass('alert');
                     $result.html('Correct!');
                 } else {
-                    console.log("NO");
                     $result.addClass('alert');
                     $result.removeClass('success');
                     $result.html('Incorrect!');
@@ -189,7 +189,7 @@
     });
 
     window.QuizInfoView = Backbone.View.extend({
-        tagName: 'li',
+        tagName: 'section',
         className: 'quizInfo',
         events: {
             'click .join': 'join'
@@ -256,17 +256,25 @@
             this.template = _.template($('#countdown-template').html());
 
             window.secondsLeft = options.secondsLeft;
-            $('span.countdown').html(window.secondsLeft);
+            //$('span.countdown').html(window.secondsLeft);
 
             
+            decisecondsLeft = secondsLeft * 10;
             window.countDownInterval = window.setInterval(function() {
-                if(window.secondsLeft > 1) { 
-                   window.secondsLeft = parseInt(window.secondsLeft) - 1;
+                //console.log(decisecondsLeft);
+                if(decisecondsLeft > 1) { 
+                        decisecondsLeft--;
+                        decisecondsTaken = 600 - decisecondsLeft;
+                        percentage = decisecondsTaken / 6 + "%";
+                        //console.log(percentage);
+                        $('span.meter').css("width", percentage);
+                        window.secondsLeft--;
+                        window.secondsLeft = parseInt(window.secondsLeft) - 1;
                 } else {
                     App.navigate('play?' + options.quiz_id,  true);
                 }
-                $('span.countdown').html(window.secondsLeft);
-            }, 1000);
+                //$('span.countdown').html(window.secondsLeft);
+            }, 100);
         },
 
         render: function() {
@@ -290,6 +298,7 @@
             'results?:quizID': 'results',
         },
         home: function() {
+            window.list.fetch();
             var $container = $('#container');
             $container.empty();
             $container.append(this.listView.render().el);
@@ -313,6 +322,7 @@
                  });
 
                 $container.append(this.countDownView.render().el);
+                $('div#countdown').slideDown();
             }
         },
         play: function(quizID) {

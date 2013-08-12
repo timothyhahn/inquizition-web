@@ -1,0 +1,25 @@
+body {
+	background: #1e6ca0; 
+
+}
+h2.title{
+	color:#3f3f5f;
+}
+div.wrap{
+	background: #dfdfdf; 
+}
+
+div#results{
+	padding:30px;
+}
+div#countdown{
+	margin-top:100px; 
+	padding:30px;
+}
+
+div.together{ 
+margin-top: 20px;
+  -moz-box-shadow:    3px 3px 5px 6px #222;
+  -webkit-box-shadow: 3px 3px 5px 6px #222;
+  box-shadow:         3px 3px 5px 6px #222;
+}
