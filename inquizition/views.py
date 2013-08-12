@@ -3,6 +3,7 @@ from flask import url_for, redirect, request, render_template, session, flash,js
 from database import db_session
 from models import Quiz, Result, User, Question, Answer, Response
 from datetime import datetime, timedelta
+from helpers import generate_results
 import json, random
 
 # Homepage
@@ -40,8 +41,8 @@ def get_random_name():
         words.append(line.strip('\n'))
     f.close()
     
-    word1 = str(words[random.randint(0, len(words))]).capitalize()
-    word2 = str(words[random.randint(0, len(words))]).capitalize()
+    word1 = str(words[random.randint(0, len(words) - 1)]).capitalize()
+    word2 = str(words[random.randint(0, len(words) - 1)]).capitalize()
     return '%s %s' % (word1, word2)
 
 @app.route('/quiz/<int:quiz_id>',methods=['GET'])
@@ -49,6 +50,7 @@ def get_quiz(quiz_id):
     ## Find quiz at id
     quiz = Quiz.query.get(quiz_id)
 
+    ## TODO: Check that you can only download maybe 10 seconds before it starts
     if quiz:
         json_results = jsonify(quiz.data())
     else:
@@ -59,6 +61,7 @@ def get_quiz(quiz_id):
 @app.route('/quiz/results/<int:quiz_id>',methods=['GET'])
 def get_quiz_results(quiz_id):
     ## Find results for quiz and order them by score
+    generate_results(quiz_id)
     results = Result.query.filter(Result.quiz_id == quiz_id).order_by(Result.score.desc())
 
     ## Convert to json
@@ -67,6 +70,7 @@ def get_quiz_results(quiz_id):
         results_dict['results'] = list()
 
         for result in results:
+            print result
             results_dict['results'].append(result.data())
 
         json_results = jsonify(results_dict)
@@ -135,8 +139,9 @@ def get_random_question():
 ## POST
 @app.route('/quiz/answer/<int:quiz_id>', methods=['POST'])
 def answer_quiz(quiz_id):
+    ## TODO: Error handling if they try to answer the same question twice
     ## Get user from request
-    user = User.query.get((int)(request.form['user_id']))
+    user_id = (int)(request.form['user_id'])
 
     ## Get question from request
     question = Question.query.get((int)(request.form['question_id']))
@@ -146,7 +151,7 @@ def answer_quiz(quiz_id):
     ## Answer quiz
     quiz = Quiz.query.get(quiz_id)
     ## Store response
-    response = Response.query.filter(Response.quiz_id == quiz_id).filter(Response.user_id == user.id).filter(Response.question_id == question_id).first()
+    response = Response.query.filter(Response.quiz_id == quiz_id).filter(Response.user_id == user_id).filter(Response.question_id == question_id).first()
 
     response.user_response = answer
 
@@ -166,7 +171,6 @@ def answer_quiz(quiz_id):
         result_dict['correct'] = 'False'
 
     json_results = jsonify(result_dict)
-    db_session.add(response)
     db_session.commit()
     return json_results
 
@@ -196,11 +200,11 @@ def create_quiz():
 
     db_session.add(quiz)
     db_session.commit()
-    ## Join creator to quiz
-    return join_quiz(quiz.id, request.form['user_id'])
+    return "CREATED"
 
 @app.route('/quiz/join/<int:quiz_id>', methods=['GET','POST'])
 def join_quiz(quiz_id, user_id=None):
+    ## TODO: Only allow joining once
     ## Get user from request
     if request:
         user = User.query.get(request.form['user_id'])
@@ -216,15 +220,18 @@ def join_quiz(quiz_id, user_id=None):
 
     ## Store responses for user
     db_session.commit()
-    return "MADE AND JOINED"
+    return "JOINED"
 
 @app.route('/login', methods=['POST'])
 def login():
-    return "HI"
+    username = request.form['username']
+    user = User.query.filter(User.name == username).first()
+    if not user:
+        user = User(name=username)
+        db_session.add(user)
+        db_session.commit()
+    return jsonify(user.info())
 
-@app.route('/register', methods=['POST'])
-def register():
-    return "BI"
 
 
 # TURN OFF DB

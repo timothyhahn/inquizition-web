@@ -21,18 +21,50 @@
 
     <script type="text/template" id="list-template">
         <h1>Click on a quiz to join:</h1>
-        <ul class="quizzes"></ul>
+        <ul class="quizInfo"></ul>
         <a href="#" onClick="generateQuiz()" class="large button expand" data-reveal-id="quizCreateModal">Create new quiz</a>
+    </script>
+
+    <script type="text/template" id="results-template">
+      <h1>Results:</h1>
+      <ul class="results"></ul>
+    </script>
+
+    <script type="text/template" id="result-template">
+        <%= username %>
+        <br />
+        <%= score %>
     </script>
 
     <script type="text/template" id="quiz-template">
       <% if (parseInt(secondsLeft) > 0) { %>
-        <a href="#" class="large button expand">
-          <div class="quiz-name"><%= name %></div>
-          <div class="quiz-seconds">Starting in: <%= secondsLeft %> seconds </div>
-        </a>
+        <button data-id="<%= id %>" class="large button expand join">
+          <%= name %>
+          <br />
+          Starting in: <%= secondsLeft %> seconds 
+        </button>
       <% } %>
     </script>
+
+    <script type="text/template" id="question-template">
+      <h1><%= text %></h1>
+      <% _.each(answers, function(answer){ %>
+        <button class="large button expand answer" data-id="<%= answer.id%>"><%= answer.text %></button>
+    <% }); %>
+
+    
+    </script>
+    <script type="text/template" id="questions-template">
+
+       <span class="result" ></span>
+        <div class="questions"></div>
+    </script>
+
+    <script type="text/template" id="countdown-template">
+        <h1>Quiz will start in:</h1>
+        <h2><span class="countdown"></span></h2>
+    </script>
+
 
     <script type="application/javascript">
       // Kicks off quiz list fetch
@@ -40,12 +72,12 @@
             window.list.fetch();
 
             // Count down every 1 second
-            setInterval(function() {
+            window.listCountInterval = window.setInterval(function() {
               window.list.each(function(quiz, index) {quiz.updateSeconds()});
             }, 1000);
 
             // Update every 10 seconds
-            setInterval(function() {
+            window.listUpdateInterval = window.setInterval(function() {
               window.list.fetch({update: true});
               },10000);
         });
@@ -64,11 +96,47 @@
     // Sends POST to create quiz
     function createQuiz(){
         this.quizName = $('input#quizName').val();
-        $.post('/quiz/create', { quiz_name: this.quizName, user_id: 1});
+        $.post('/quiz/create', { quiz_name: this.quizName, user_id: window.user_id});
         $('#quizCreateModal').foundation('reveal', 'close');
         window.list.fetch({update: true});
     }
 
+    function loginUser() {
+        window.user_id = undefined;
+        $.post('/login', {
+            username: $('input#username').val()
+            }).done(function(data) {
+              window.user_id = data.id;
+              $('#loginModal').foundation('reveal', 'close');
+              createCookie('user_id', data.id, 7);
+              });
+    }
+
+    function createCookie(name,value,days) {
+         if (days) {
+            var date = new Date();
+            date.setTime(date.getTime()+(days*24*60*60*1000));
+            var expires = "; expires="+date.toGMTString();
+        }
+        else var expires = "";
+            document.cookie = name+"="+value+expires+"; path=/";
+    }
+
+
+        function readCookie(name) {
+            var nameEQ = name + "=";
+            var ca = document.cookie.split(';');
+            for(var i=0;i < ca.length;i++) {
+                var c = ca[i];
+                while (c.charAt(0)==' ') c = c.substring(1,c.length);
+                if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+            }
+            return null;
+        }
+
+    function eraseCookie(name) {
+        createCookie(name,"",-1);
+    }
 
     // Key Handlers
     jQuery(function() {
@@ -78,7 +146,33 @@
             createQuiz();
          }
         });
+        $('input#username').keypress(function(e) {
+        if(e.which == 13) {
+            loginUser();
+         }
+        });
+
     });
+
+    function validateUser() {
+        if(readCookie('user_id') != null) {
+            window.user_id = readCookie('user_id');
+        } 
+
+        if(window.user_id == undefined) {
+            $('#loginModal').foundation('reveal', 'open', {
+                closeOnBackgroundClick: false ,
+                closeOnEsc: false,
+
+              });
+            
+
+            }
+    }
+
+    jQuery(function() {
+        validateUser();
+    });  
 
     </script>
 
@@ -86,20 +180,31 @@
 
   <body>
 
+    <div id="loginModal" class="reveal-modal xlarge">
+        <div class="large-12 columns">
+            <label>Username:</label>
+            <input type="text" placeholder="Username" id="username">
+            <a class="medium button" onClick="loginUser()">Play!</a>
+        </div>
+
+    </div>
+
     <div id="quizCreateModal" class="reveal-modal">
         <div class="large-12 columns">
             <label>Quiz Name:</label>
-            <input type="text" placeholder="large-12.columns" id="quizName">
+            <input type="text" placeholder="Quiz Name" id="quizName">
         </div>
         <a class="medium button" onClick="createQuiz()">Create Quiz</a>
         <a class="close-reveal-modal">&#215;</a>
     </div>
 
-    <div id="container">
+    <div class="large-12 columns">
+        <div id="container">
+        </div>
     </div>
-        <script>
-         $(document).foundation();
 
+    <script>
+        $(document).foundation();
     </script>
  
   </body>

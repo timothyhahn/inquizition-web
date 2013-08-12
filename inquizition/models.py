@@ -29,6 +29,7 @@ class Quiz(Base):
 
     def info(self):
         quiz_dict = dict()
+        quiz_dict['id'] = self.id
         quiz_dict['name'] = self.name
         quiz_dict['startTime'] = str(self.start_time)
         seconds_left = self.start_time - datetime.now()
@@ -62,6 +63,13 @@ class User(Base):
     def __repr__(self):
         return '<User %r>' % (self.name)
 
+    def info(self):
+        user_dict = dict()
+        user_dict['id'] = self.id
+        user_dict['name'] = self.name
+        return user_dict
+
+
 class Response(Base):
     __tablename__ = 'response'
     id = Column(Integer, primary_key=True)
@@ -90,14 +98,26 @@ class Result(Base):
     score = Column(Integer)
     date = Column(DateTime, nullable=False)
 
-    def __init__(self, user_id, quiz_id, score=None):
+    def __init__(self, user_id=None, quiz_id=None, score=None):
         self.user_id = user_id
         self.quiz_id = quiz_id
         self.score = score
-        self.date = datetime.datetime.now
+        self.date = datetime.now()
         
     def __repr__(self):
         return '<Result %d>' % (self.id)
+
+    def data(self):
+        result_dict = dict()
+        result_dict['id'] = self.id
+        result_dict['score'] = self.score
+        result_dict['quiz_id'] = self.quiz_id
+        result_dict['user_id'] = self.user_id
+        result_dict['username'] = User.query.get(self.user_id).name
+        result_dict['date'] = self.date
+
+        return result_dict
+
 
 
 class Question(Base):
@@ -119,12 +139,12 @@ class Question(Base):
         answer_list = list()
         for answer in Answer.query.filter(Answer.question_id == self.id):
             answer_dict = dict()
-            answer_dict['answerID'] = answer.id
-            answer_dict['answerText'] = answer.text
+            answer_dict['id'] = answer.id
+            answer_dict['text'] = answer.text
             answer_list.append(answer_dict)
 
-        question['questionText'] = self.text
-        question['questionID'] = self.id
+        question['text'] = self.text
+        question['id'] = self.id
         question['answers'] = answer_list
         return question
 
@@ -139,7 +159,7 @@ class Answer(Base):
         self.question_id = question_id
     
     def data(self):
-        answer['answerID'] = self.id
+        answer['id'] = self.id
         answer['text'] = self.text
         return answer
 
