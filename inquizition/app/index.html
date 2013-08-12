@@ -96,10 +96,12 @@
     // Sends POST to create quiz
     function createQuiz(){
         this.quizName = $('input#quizName').val();
-        $.post('/quiz/create', { quiz_name: this.quizName, user_id: window.user_id});
-        $('#quizCreateModal').foundation('reveal', 'close');
+        $.post('/quiz/create', { quiz_name: this.quizName, user_id: window.user_id},function(data) {
+         $('#quizCreateModal').foundation('reveal', 'close');
         window.list.fetch({update: true});
-    }
+   
+            });
+            }
 
     function loginUser() {
         window.user_id = undefined;
