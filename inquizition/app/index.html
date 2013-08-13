@@ -121,6 +121,7 @@
     // Gets potential quiz names
     function generateQuiz() {
         this.quizName = "";
+        changeTime(window.seconds);
         $.get('/name', function(data) {
             this.quizName = data;
             }).done(function() {
@@ -137,7 +138,6 @@
         window.list.fetch({update: true});
    
         $('#createQuizButton').removeClass('disabled');
-        window.seconds = 30;
             });
             }
 

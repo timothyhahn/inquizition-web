@@ -265,8 +265,7 @@
             this.template = _.template($('#countdown-template').html());
 
             window.secondsLeft = options.secondsLeft;
-
-            window.decisecondsLeft = window.secondsLeft * 10;
+            window.decisecondsLeft = window.seconds * 10;
             window.countDownInterval = window.setInterval(function() {
                 if(decisecondsLeft > 11) { 
                         decisecondsLeft--;
@@ -371,6 +370,7 @@
 
                 window.countDownView = new CountDownView({
                     secondsLeft: quiz.get('secondsLeft'),
+                    totalSeconds:  window.seconds,
                     quiz_id: quizID,
                     quizJoiners: new Array(),
                  });
