@@ -400,6 +400,7 @@
             $result.hide();
             window.clearInterval(window.countDownUpdateInterval);
             window.clearInterval(window.countDownInterval);
+            window.clearInterval(window.countDownJoinInterval);
             this.questions = new Questions(quizID);
             window.questionsView = new QuestionsView({collection:this.questions});
             window.quiz_id = quizID;
