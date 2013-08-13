@@ -10,9 +10,6 @@
     <meta name="viewport" content="width=device-width">
 
     <title>Inquizition - Nobody expects us!</title>
-    <link rel="stylesheet" href="css/foundation.min.css">
-    <link rel="stylesheet" href="css/general_foundicons.css">
-    <link rel="stylesheet" href="css/inquizition.css">
     <script src="js/vendor/head.load.min.js"></script>
     
     <script>
@@ -124,7 +121,7 @@
     <script type="application/javascript">
       // Kicks off quiz list fetch
     var prefix = "/app/js/vendor/"
-    head.js(prefix + "custom.modernizr.js", prefix + "jquery-min.js", prefix + "underscore-min.js", prefix + "backbone-min.js", prefix + "foundation.min.js", "js/Inquizition.js",function() {
+    head.js("/app/css/foundation.min.css", "/app/css/general_foundicons.css", "/app/css/inquizition.css", prefix + "custom.modernizr.js", prefix + "jquery-min.js", prefix + "underscore-min.js", prefix + "backbone-min.js", prefix + "foundation.min.js", "js/Inquizition.js",function() {
         
         // Key Handlers
         jQuery(function() {
