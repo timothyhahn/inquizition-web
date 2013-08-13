@@ -130,7 +130,6 @@
                 $result = $('div#result');
 
                 $result.hide();
-                console.log(data);
                 if(data['correct'] == "True"){
                     $result.addClass('success');
                     $result.removeClass('alert');
@@ -142,10 +141,13 @@
                 }
                 $result.slideDown();
                 $('h5#points').html(data['score']);
-            questionsView.proceedNext();
-            questionsView.showCurrent();
+
+                questionsView.proceedNext();
+                questionsView.showCurrent();
 
             });
+                questionsView.hideCurrent();
+
 
                     }
     });
@@ -181,10 +183,14 @@
             select = '.question#question_' + id
             $(select).slideDown();
         },
+        hideCurrent:function(){
+           select = '.question#question_' + window.question_id;
+            $(select).slideUp();
+
+        },
         proceedNext:function() {
             var collection = this.collection;
-            select = '.question#question_' + window.question_id
-            $(select).slideUp();
+            this.hideCurrent();
             collection.next();
         },
 
