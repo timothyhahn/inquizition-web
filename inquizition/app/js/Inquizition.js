@@ -406,7 +406,9 @@
 
             $container.append(questionsView.render().el);
 
+            $('div#resultLoader').show();
             this.questions.fetch().complete(function() {
+                $('div#resultLoader').hide();
                 questionsView.showCurrent();
             });
 
