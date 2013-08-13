@@ -214,6 +214,7 @@ def answer_quiz(quiz_id):
 
 @app.route('/quiz/create', methods=['GET','POST'])
 def create_quiz():
+
     ## Create quiz
     quiz_name = (str)(request.form['quiz_name'])
     #quiz_name = "HELLO VIETNAM"
@@ -232,7 +233,11 @@ def create_quiz():
 
     quiz.questions = json.dumps(question_list)
 
-    quiz.start_time = datetime.now() + timedelta(minutes=1)
+    seconds_later = 60
+
+    if 'seconds' in request.form.keys():
+        seconds_later = (int)(request.form['seconds'])
+    quiz.start_time = datetime.now() + timedelta(seconds=seconds_later)
     quiz.end_time = quiz.start_time + timedelta(minutes=10)
     quiz.last_answered = quiz.start_time
 

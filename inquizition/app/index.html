@@ -132,11 +132,12 @@
     function createQuiz(){
         this.quizName = $('input#quizName').val();
         $('#createQuizButton').addClass('disabled');
-        $.post('/quiz/create', { quiz_name: this.quizName, user_id: window.user_id},function(data) {
+        $.post('/quiz/create', { quiz_name: this.quizName, user_id: window.user_id, seconds: window.seconds},function(data) {
          $('#quizCreateModal').foundation('reveal', 'close');
         window.list.fetch({update: true});
    
         $('#createQuizButton').removeClass('disabled');
+        window.seconds = 30;
             });
             }
 
@@ -237,6 +238,11 @@
         }
             
     }
+    function changeTime(seconds){
+        window.seconds = seconds;
+        $('button.time').addClass('secondary');
+        $('button#'+seconds).removeClass('secondary');
+    }
 
 
     </script>
@@ -296,12 +302,31 @@
     </div>
 
     <div id="quizCreateModal" class="reveal-modal">
+        <div class="row">
         <div class="large-12 columns">
             <label>Quiz Name:</label>
             <input type="text" placeholder="Quiz Name" id="quizName">
         </div>
-        <a class="medium button" id="createQuizButton" onClick="createQuiz()">Create Quiz</a>
+        </div>
+        <div class="row">
+            <div class="large-12 columns">
+            <ul class="button-group">
+                <label>Starts in: (seconds)</label>
+                <br />
+                <li><button onClick="changeTime(10)" class="time large button secondary" id="10">10</button></li>
+                <li><button onClick="changeTime(30)" class="time large button" id="30">30</button></li>
+                <li><button onClick="changeTime(60)" class="time large button secondary" id="60">60</button></li>
+            </ul>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="large-12 columns">
+                <a class="medium button" id="createQuizButton" onClick="createQuiz()">Create Quiz</a>
+            </div>
+        </div>
         <a class="close-reveal-modal">&#215;</a>
+
     </div>
 
     <div class="large-12 columns">

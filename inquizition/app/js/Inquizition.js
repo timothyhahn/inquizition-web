@@ -270,8 +270,10 @@
             window.countDownInterval = window.setInterval(function() {
                 if(decisecondsLeft > 11) { 
                         decisecondsLeft--;
-                        decisecondsTaken = 600 - decisecondsLeft;
-                        percentage = decisecondsTaken / 6 + '%';
+                        deciTotal = window.seconds * 10;
+                        decisecondsTaken = deciTotal - decisecondsLeft;
+                        factor = window.seconds / 10;
+                        percentage = decisecondsTaken / factor + '%';
                         $('span.meter#waitProgress').css('width', percentage);
                 } else {
                     App.navigate('play?' + options.quiz_id,  true);
@@ -282,14 +284,14 @@
                 $.get('/quiz/seconds/' + options.quiz_id, function(data) {
                     this.secondsLeft = data;
                     }).done(function() {
-                        if(this.secondsLeft < 60)
+                        if(this.secondsLeft < window.seconds)
                             window.decisecondsLeft = this.secondsLeft * 10;
                 });
             }, 5000);
             this.updateJoiners();
             window.countDownJoinInterval = window.setInterval(function(){
                 window.countDownView.updateJoiners();
-            }, 5000);
+            }, 2500);
 
         },
         updateJoiners: function(){
@@ -316,6 +318,7 @@
 
     window.Inquizition = Backbone.Router.extend({
         initialize: function() {
+            window.seconds = 30;
             this.listView = new ListView({
                 collection: window.list
             });
@@ -340,10 +343,10 @@
               window.list.each(function(quiz, index) {quiz.updateSeconds()});
             }, 1000);
 
-            // Update every 10 seconds
+            // Update every 5 seconds
             window.listUpdateInterval = window.setInterval(function() {
               window.list.fetch({update: true});
-              },10000);
+              },5000);
 
             window.clearInterval(window.resultsInterval);
 
