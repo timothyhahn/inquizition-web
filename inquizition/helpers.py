@@ -81,7 +81,7 @@ def generate_results(quiz_id):
         for response in responses:
             ## Get if correct
             question = Question.query.get(response.question_id)
-            if response.time_elapsed:
+            if response.time_elapsed is not None:
                 if response.user_response == question.correct_answer_id:
                     ## Get how long it took
                     score += 60 - response.time_elapsed
