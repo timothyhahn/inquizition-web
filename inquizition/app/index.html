@@ -13,15 +13,8 @@
     <link rel="stylesheet" href="css/foundation.min.css">
     <link rel="stylesheet" href="css/general_foundicons.css">
     <link rel="stylesheet" href="css/inquizition.css">
-
-    <script src="js/vendor/custom.modernizr.js"></script>
-    <script src="js/vendor/jquery.js"></script>
-    <script src="js/vendor/underscore.js"></script>
-    <script src="js/vendor/backbone.js"></script>
-    <script src="js/vendor/zepto.js"></script>
-    <script src="js/vendor/foundation.min.js"></script>
-    <script src="js/Inquizition.js"></script>
-
+    <script src="js/vendor/head.load.min.js"></script>
+   
     <script type="text/template" id="list-template">
 
         <div class="row together">
@@ -117,6 +110,26 @@
 
     <script type="application/javascript">
       // Kicks off quiz list fetch
+    var prefix = "/app/js/vendor/"
+    head.js(prefix + "custom.modernizr.js", prefix + "jquery-min.js", prefix + "underscore-min.js", prefix + "backbone-min.js", prefix + "foundation.min.js", "js/Inquizition.js",function() {
+        
+        // Key Handlers
+        jQuery(function() {
+        // If Enter is pressed inside quiz name modal input
+        $('input#quizName').keypress(function(e) {
+        if(e.which == 13) {
+            createQuiz();
+         }
+        });
+        $('input#username').keypress(function(e) {
+        if(e.which == 13) {
+            loginUser();
+         }
+        });
+
+        });
+
+        });
 
     // Gets potential quiz names
     function generateQuiz() {
@@ -185,22 +198,7 @@
         createCookie(name,"",-1);
     }
 
-    // Key Handlers
-    jQuery(function() {
-        // If Enter is pressed inside quiz name modal input
-        $('input#quizName').keypress(function(e) {
-        if(e.which == 13) {
-            createQuiz();
-         }
-        });
-        $('input#username').keypress(function(e) {
-        if(e.which == 13) {
-            loginUser();
-         }
-        });
-
-    });
-    function logout(){
+        function logout(){
         eraseCookie('user_id');
         eraseCookie('username');
         window.user_id = undefined;
@@ -259,7 +257,7 @@
         <li class="name">
           <h1>
             <a href="#">
-              Inquizition!
+              <i class="foundicon-home"></i> Inquizition!
             </a>
           </h1>
         </li>
@@ -329,8 +327,9 @@
     </div>
 
     <script>
-        $(document).foundation();
-        $(document).foundation().foundation('topbar');
+      head.ready(function() {
+        $(document).foundation()
+      });
     </script>
  
   </body>
