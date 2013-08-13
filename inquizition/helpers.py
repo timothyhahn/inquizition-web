@@ -81,11 +81,12 @@ def generate_results(quiz_id):
         for response in responses:
             ## Get if correct
             question = Question.query.get(response.question_id)
-            if response.user_response == question.correct_answer_id:
-                ## Get how long it took
-                score += 60 - response.time_elapsed
-            else:
-                score -= 10
+            if response.time_elapsed:
+                if response.user_response == question.correct_answer_id:
+                    ## Get how long it took
+                    score += 60 - response.time_elapsed
+                else:
+                    score -= 10
         scores_dict[user_id] = score
 
     for user_id in scores_dict.keys():

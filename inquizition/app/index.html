@@ -27,7 +27,8 @@
         <div class="row together">
             <div class="row wrap">
                 <div class="large-12 columns">
-                    <h2 class="title">Inquizition!</h2>
+                    <h2 class="title">Let’s play Inquizition!</h2>
+                    <p>Select an ongoing game below or create your own game!</p>
                     <hr />
                 </div>
             </div>
@@ -45,15 +46,25 @@
             <div class="large-12 columns">
                   <h1>Results:</h1>
                   <p>Results are continuously updated</p>
-                  <ul class="results"></ul>
+                  <table>
+                    <thead>
+                    <tr>
+                    <th width="200">User</th>
+                    <th width="300">Score</th>
+                    <th>Date</th>
+                    </tr>
+                </thead>
+              <tbody class="results">
+              </tbody>
+                  </table>
             </div>
         </div>
     </script>
 
     <script type="text/template" id="result-template">
-        <%= username %>
-        <br />
-        <%= score %>
+        <td><%= username %></td>
+        <td><%= score %></td>
+        <td><%= date %></td>
     </script>
 
     <script type="text/template" id="quiz-template">
@@ -68,11 +79,15 @@
 
     <script type="text/template" id="question-template">
         <div class="large-12 columns">
-          <h1><%= text %></h1>
+          <h3><%= text %></h3>
           <% _.each(answers, function(answer){ %>
             <button class="large button expand answer" data-id="<%= answer.id%>"><%= answer.text %></button>
             <% }); %>
           </div>
+
+        <hr />
+
+       
     </script>
     <script type="text/template" id="questions-template">
 
@@ -81,13 +96,20 @@
         <div class="questions" id="questions">
 
         </div>
+        <div class="row wrap together">
+         <div class="large-12 columns" id="info">
+            <h4>Progress:</h4> <div class="progress large-12 round"><span class="meter" id="questionProgress" style="width: 0%"></span></div>
+            <h4>Points</h4>
+            <div id="points"><h5 id ="points">0</h5></div>
+        </div>
+        </div>
     </script>
 
     <script type="text/template" id="countdown-template">
         <div class="row wrap together center" id="countdown" style="display:none;">
-            <div class="large-12 columns">
+            <div class="large-12 columns" id="join">
                 <h1>Waiting for other players</h1>
-                <div class="progress large-6 round"><span class="meter" style="width: 0%"></span></div>
+                <div class="progress large-12 round"><span class="meter" id="waitProgress" style="width: 0%"></span></div>
             </div>
         </div>
     </script>
@@ -132,6 +154,7 @@
               $('#loginModal').foundation('reveal', 'close');
               createCookie('user_id', data.id, 7);
               createCookie('username', data.name, 7);
+              $('a#userName').html(data.name);
               });
     }
 
@@ -181,6 +204,7 @@
         eraseCookie('username');
         window.user_id = undefined;
         window.user_name = undefined;
+        $('a#userName').html('User');
         validateUser();
     }
 
@@ -195,6 +219,7 @@
             createCookie('user_id', data.id, 7);
             createCookie('username', data.name, 7);
             $('#loginModal').foundation('reveal', 'close');
+            $('a#userName').html(window.username);
               });
             
         } else {
@@ -225,7 +250,7 @@
         <li class="name">
           <h1>
             <a href="#">
-              Inquizition
+              Inquizition!
             </a>
           </h1>
         </li>
@@ -235,10 +260,10 @@
       <section class="top-bar-section">
         <ul class="left show-for-medium-down">
             <li class="has-dropdown">
-                <a href="#">User</a>
+                <a href="#" id="userName">User</a>
                 <ul class="dropdown">
                   <li><label>User Actions</label></li>
-                  <li><a href="#">Results</a></li>
+                  <li><a href="#user">Results</a></li>
                   <li><a href="#" onClick="logout()">Logout</a></li>
                 </ul>
             </li>
@@ -246,16 +271,20 @@
         <!-- Right Nav Section -->
         <ul class="right show-for-large-up">
             <li class="has-dropdown">
-                <a href="#">User</a>
+                <a href="#" id="userName">User</a>
                 <ul class="dropdown">
                   <li><label>User Actions</label></li>
-                  <li><a href="#">Results</a></li>
+                  <li><a href="#user">Results</a></li>
                   <li><a href="#" onClick="logout()">Logout</a></li>
                 </ul>
             </li>
         </ul>
         </section>
     </nav>
+    <div data-alert class="alert-box success" id="result" style="display:none;">
+
+    <a href="#" class="close">&times;</a>
+    </div>
 
     <div id="loginModal" class="reveal-modal xlarge">
         <div class="large-12 columns">

@@ -69,6 +69,27 @@ def get_seconds(quiz_id):
 
     return results
 
+@app.route('/quiz/joiners/<int:quiz_id>', methods=['GET'])
+def get_quiz_joiners(quiz_id):
+    responses = Response.query.filter(Response.quiz_id == quiz_id)
+    user_set = set()
+    for response in responses:
+        user_set.add(response.user_id)
+
+    user_list = list(user_set)
+    joiner_list = list()
+    for user_id in user_list:
+        user_dict = dict()
+        user = User.query.get(user_id)
+        
+        user_dict['id'] = user.id
+        user_dict['name'] = user.name
+        joiner_list.append(user_dict)
+    joiner_dict = dict()
+    joiner_dict['joiners'] = joiner_list
+    return jsonify(joiner_dict)
+
+
 @app.route('/quiz/results/<int:quiz_id>',methods=['GET'])
 def get_quiz_results(quiz_id):
     ## Find results for quiz and order them by score
@@ -152,7 +173,6 @@ def answer_quiz(quiz_id):
     ## TODO: Error handling if they try to answer the same question twice
     ## Get user from request
     user_id = (int)(request.form['user_id'])
-
     ## Get question from request
     question = Question.query.get((int)(request.form['question_id']))
     question_id = request.form['question_id']
@@ -171,14 +191,22 @@ def answer_quiz(quiz_id):
     time_elapsed = now - then
     response.time_elapsed = int(time_elapsed.seconds)
     quiz.last_answered = datetime.now()
+    db_session.commit()
+
+    generate_results(quiz_id)
+    result = Result.query.filter(Result.quiz_id == quiz_id).filter(Result.user_id == user_id).first()
 
     result_dict = dict()
     ## Find out if that response is correct
     correct_answer = Answer.query.get(question.correct_answer_id)
     if(answer == correct_answer.id):
         result_dict['correct'] = 'True'
+        result_dict['text'] = ''
+        result_dict['score'] = result.score
     else:
         result_dict['correct'] = 'False'
+        result_dict['text'] = correct_answer.text
+        result_dict['score'] = result.score
 
     json_results = jsonify(result_dict)
     db_session.commit()

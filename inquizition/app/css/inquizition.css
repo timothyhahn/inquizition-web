@@ -23,3 +23,7 @@ margin-top: 20px;
   -webkit-box-shadow: 3px 3px 5px 6px #222;
   box-shadow:         3px 3px 5px 6px #222;
 }
+div#info{
+	margin-left: 10px;
+	margin-right:10px;
+}

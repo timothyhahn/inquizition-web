@@ -22,13 +22,22 @@
         },
     });
 
+    window.UserResults = Backbone.Collection.extend({
+        model: Result,
+        parse: function(response){
+            return response.results;
+        },
+        initialize: function(id){
+            this.url = '/user/'+id;
+        }
+    });
+
     window.ResultView = Backbone.View.extend({
-        tagName: 'li',
+        tagName: 'tr',
         className: 'result',
         initialize: function() {
             _.bindAll(this, 'render');
             this.template = _.template($('#result-template').html());
-            //this.model.bind('change',this.render);
         },
         render: function() {
             var renderedContent = this.template(this.model.toJSON());
@@ -83,9 +92,8 @@
         },
         next: function() {
             this.currentIndex++;
-            console.log('currentIndex',this.currentIndex);
-            console.log('length', this.models.length);
-
+            percentage = (this.currentIndex * 10) + '%';
+            $('span.meter#questionProgress').css('width', percentage);
             if(this.currentIndex < this.models.length){
                 window.question_id = this.models[this.currentIndex].get('id');
             } else {
@@ -118,12 +126,11 @@
         answer: function(ev) {
             var answer = $(ev.target).data('id');
             $.post('/quiz/answer/' + window.quiz_id, { user_id: window.user_id, question_id: window.question_id, answer: answer},function(data){
-                console.log(data);    
-                console.log(data['correct']);
 
-                $result = $('span.result');
-                console.log($result);
-                $result.addClass('label');
+                $result = $('div#result');
+
+                $result.hide();
+                console.log(data);
                 if(data['correct'] == "True"){
                     $result.addClass('success');
                     $result.removeClass('alert');
@@ -131,8 +138,10 @@
                 } else {
                     $result.addClass('alert');
                     $result.removeClass('success');
-                    $result.html('Incorrect!');
+                    $result.html('Incorrect! The answer was: ' + data['text']);
                 }
+                $result.slideDown();
+                $('h5#points').html(data['score']);
             });
 
             questionsView.proceedNext();
@@ -262,8 +271,8 @@
                 if(decisecondsLeft > 11) { 
                         decisecondsLeft--;
                         decisecondsTaken = 600 - decisecondsLeft;
-                        percentage = decisecondsTaken / 6 + "%";
-                        $('span.meter').css("width", percentage);
+                        percentage = decisecondsTaken / 6 + '%';
+                        $('span.meter#waitProgress').css('width', percentage);
                 } else {
                     App.navigate('play?' + options.quiz_id,  true);
                 }
@@ -277,6 +286,24 @@
                             window.decisecondsLeft = this.secondsLeft * 10;
                 });
             }, 5000);
+            this.updateJoiners();
+            window.countDownJoinInterval = window.setInterval(function(){
+                window.countDownView.updateJoiners();
+            }, 5000);
+
+        },
+        updateJoiners: function(){
+            var options = this.options;
+             $.get('/quiz/joiners/' + options.quiz_id, function(data){
+                    for (var i = 0; i < data.joiners.length; i++){
+                        if($.inArray(data.joiners[i].id,options.quizJoiners) == -1){
+                            options.quizJoiners.push(data.joiners[i].id);
+                            var box = '<div data-alert class="alert-box secondary" style="display: none" id="joiner">' + data.joiners[i].name +' Joined</div>'
+                            $('div#join').append(box);
+                            $('div#joiner').slideDown();
+                        } 
+                    }
+                });
         },
 
         render: function() {
@@ -298,12 +325,16 @@
             'countdown?:quizID': 'countdown',
             'play?:quizID': 'play',
             'results?:quizID': 'results',
+            'user': 'userResults',
         },
         home: function() {
 
             validateUser();
             window.list.fetch();
 
+
+            var $result = $('div#result');
+            $result.hide();
             // Count down every 1 second
             window.listCountInterval = window.setInterval(function() {
               window.list.each(function(quiz, index) {quiz.updateSeconds()});
@@ -323,6 +354,9 @@
         countdown: function(quizID) {
             var $container = $('#container');
             $container.empty();
+
+            var $result = $('div#result');
+            $result.hide();
             window.clearInterval(window.listCountInterval);
             window.clearInterval(window.listUpdateInterval);
 
@@ -332,13 +366,13 @@
                 App.navigate('', true)
             } else {
 
-                this.countDownView = new CountDownView({
+                window.countDownView = new CountDownView({
                     secondsLeft: quiz.get('secondsLeft'),
-                    quiz_id: quizID
-
+                    quiz_id: quizID,
+                    quizJoiners: new Array(),
                  });
 
-                $container.append(this.countDownView.render().el);
+                $container.append(window.countDownView.render().el);
                 $('div#countdown').slideDown();
             }
         },
@@ -346,6 +380,9 @@
             var $container = $('#container');
             $container.empty();
 
+
+            var $result = $('div#result');
+            $result.hide();
             window.clearInterval(window.countDownUpdateInterval);
             window.clearInterval(window.countDownInterval);
             this.questions = new Questions(quizID);
@@ -363,9 +400,13 @@
             var $container = $('#container');
             $container.empty();
             
+            $result = $('div#result');
             window.results = new Results(quizID);
 
             window.results.fetch().complete(function() {
+
+            $result.hide();
+
             window.resultsView = new ResultsView({collection: window.results});
             window.quiz_id = quizID;
             $container.append(resultsView.render().el);
@@ -375,6 +416,21 @@
 
             });
 
+        },
+        userResults: function(){
+            var $container = $('#container');
+            $container.empty();
+             $result = $('div#result');
+                 window.clearInterval(window.listCountInterval);
+            window.clearInterval(window.listUpdateInterval);
+            window.userResults = new UserResults(window.user_id);
+
+
+            window.userResults.fetch().complete(function() {
+                $result.hide();
+                window.userResultsView = new ResultsView({collection: window.userResults});
+                $container.append(userResultsView.render().el);
+         });
         },
     });
 
