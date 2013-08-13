@@ -243,6 +243,9 @@
         $('button.time').addClass('secondary');
         $('button#'+seconds).removeClass('secondary');
     }
+    function hideBack(){
+        $('li.title.back.js-generated').hide();
+    }
 
 
     </script>
@@ -260,31 +263,21 @@
             </a>
           </h1>
         </li>
-        <li class="toggle-topbar"><a href="#"></a></li>
+        <li class="toggle-topbar menu-icon"><a href="#" onClick="hideBack()"><span>Menu</span></a></li>
       </ul>
 
       <section class="top-bar-section">
-        <ul class="left show-for-medium-down">
+        <ul class="right">
             <li class="has-dropdown">
                 <a href="#" id="userName">User</a>
                 <ul class="dropdown">
-                  <li><label>User Actions</label></li>
+                  <li ><label>User Actions</label></li>
                   <li><a href="#user">Results</a></li>
                   <li><a href="#" onClick="logout()">Logout</a></li>
                 </ul>
             </li>
         </ul>
-        <!-- Right Nav Section -->
-        <ul class="right show-for-large-up">
-            <li class="has-dropdown">
-                <a href="#" id="userName">User</a>
-                <ul class="dropdown">
-                  <li><label>User Actions</label></li>
-                  <li><a href="#user">Results</a></li>
-                  <li><a href="#" onClick="logout()">Logout</a></li>
-                </ul>
-            </li>
-        </ul>
+  
         </section>
     </nav>
     <div data-alert class="alert-box success" id="result" style="display:none;">
