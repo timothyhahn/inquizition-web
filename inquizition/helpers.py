@@ -41,25 +41,30 @@ def load_questions():
             print question
 
     for question in questions:
-        q = Question(text=question['question'])
-        db_session.add(q)
-        db_session.flush()
-        db_session.refresh(q)
+        q = Question.query.filter(Question.text == question['question']).first()
+        if q:
+            print "UPDATING: %s" %(question['question'])
+        else:
+            print "ADDING: %s" % (question['question'])
+            q = Question(text=question['question'])
+            db_session.add(q)
+            db_session.flush()
+            db_session.refresh(q)
 
-        ca = Answer(text=str(question['correct_answer']), question_id=q.id)
-        oa1= Answer(text=str(question['answers'][0]), question_id=q.id)
-        oa2= Answer(text=str(question['answers'][1]), question_id=q.id)
-        oa3= Answer(text=str(question['answers'][2]), question_id=q.id)
+            ca = Answer(text=str(question['correct_answer']), question_id=q.id)
+            oa1= Answer(text=str(question['answers'][0]), question_id=q.id)
+            oa2= Answer(text=str(question['answers'][1]), question_id=q.id)
+            oa3= Answer(text=str(question['answers'][2]), question_id=q.id)
 
-        answers = [ca, oa1, oa2, oa3]
-        random.shuffle(answers)
+            answers = [ca, oa1, oa2, oa3]
+            random.shuffle(answers)
 
-        for a in answers:
-            db_session.add(a)
+            for a in answers:
+                db_session.add(a)
 
-        db_session.flush()
-        db_session.refresh(ca)
-        q.correct_answer_id = ca.id
+            db_session.flush()
+            db_session.refresh(ca)
+            q.correct_answer_id = ca.id
         db_session.add(q)
     db_session.commit()
 
