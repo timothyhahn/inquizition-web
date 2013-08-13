@@ -124,12 +124,13 @@
             return this;
         },
         answer: function(ev) {
+            $('img#responseLoader').show();
             var answer = $(ev.target).data('id');
             $.post('/quiz/answer/' + window.quiz_id, { user_id: window.user_id, question_id: window.question_id, answer: answer},function(data){
 
                 $result = $('div#result');
 
-                $result.hide();
+                $result.css('visibility', 'hidden');
                 if(data['correct'] == "True"){
                     $result.addClass('success');
                     $result.removeClass('alert');
@@ -139,8 +140,10 @@
                     $result.removeClass('success');
                     $result.html('Incorrect! The answer was: ' + data['text']);
                 }
-                $result.slideDown();
+                $result.css('visibility', 'visible');
+                $result.fadeIn(100).fadeOut(100).fadeIn(100).fadeOut(100).fadeIn(100);
                 $('h5#points').html(data['score']);
+                $('img#responseLoader').hide();
 
                 questionsView.proceedNext();
                 questionsView.showCurrent();
@@ -342,15 +345,19 @@
 
 
             var $result = $('div#result');
-            $result.hide();
+            $result.css('visibility', 'hidden');
             // Count down every 1 second
             window.listCountInterval = window.setInterval(function() {
               window.list.each(function(quiz, index) {quiz.updateSeconds()});
             }, 1000);
 
-            // Update every 5 seconds
+                   // Update every 5 seconds
             window.listUpdateInterval = window.setInterval(function() {
-              window.list.fetch({update: true});
+        $('img#quizLoader').show();
+        window.list.fetch({update: true}).complete(function() {
+            $('img#quizLoader').hide();
+        });
+
               },5000);
 
             window.clearInterval(window.resultsInterval);

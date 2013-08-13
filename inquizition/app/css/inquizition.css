@@ -16,7 +16,13 @@ div#countdown{
 	margin-top:100px; 
 	padding:30px;
 }
+img.loader{
 
+	display: block;
+    margin-left: auto;
+    margin-right: 10px;
+
+}
 div.together{ 
 margin-top: 20px;
   -moz-box-shadow:    3px 3px 5px 6px #222;

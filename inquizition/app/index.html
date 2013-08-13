@@ -29,15 +29,20 @@
 
         <div class="row together">
             <div class="row wrap">
-                <div class="large-12 columns">
+                <div class="large-8 columns">
                     <h2 class="title">Let’s play Inquizition!</h2>
                     <p>Select an ongoing game below or create your own game!</p>
+
                     <hr />
                 </div>
+                <div class="large-4 columns"><img src="/app/img/loader.gif" alt="Loading..." class="loader" id="quizLoader" style="display:none"/>
+                </div>
+
             </div>
             <div class="row wrap">
                 <div class="large-12 columns">
                     <div class="quizInfo"></div>
+                    
                     <button onClick="generateQuiz()" class="large button expand" data-reveal-id="quizCreateModal"><i class="foundicon-plus"></i></button>
                 </div>
             </div>
@@ -93,8 +98,26 @@
        
     </script>
     <script type="text/template" id="questions-template">
+        <div class="row wrap together">
+            <div class="row " style="margin-left:20px">
+            <div class="large-8 columns">
+               <h4>Points</h4>
+              <div id="points"><h5 id ="points">0</h5></div>
+              </div>
+            <div class="large-4 columns"><br /><img src="/app/img/loader.gif" alt="Loading..." class="loader" id="responseLoader" style="display:none;"/></div>
 
-       <span class="result" ></span>
+            <span class="result" ></span>
+
+            </div>
+            <div class="row">
+                <div class="large-12 columns">
+                <div data-alert class="alert-box success" id="result" style="visibility:hidden;">
+
+                    <a href="#" class="close">&times;</a></div>
+                </div>
+                </div>
+            </div>
+
 
         <div class="questions" id="questions">
 
@@ -102,10 +125,11 @@
         <div class="row wrap together">
          <div class="large-12 columns" id="info">
             <h4>Progress:</h4> <div class="progress large-12 round"><span class="meter" id="questionProgress" style="width: 0%"></span></div>
-            <h4>Points</h4>
-            <div id="points"><h5 id ="points">0</h5></div>
+            
+          
         </div>
         </div>
+
     </script>
 
     <script type="text/template" id="countdown-template">
@@ -158,14 +182,21 @@
         $('#createQuizButton').addClass('disabled');
         $.post('/quiz/create', { quiz_name: this.quizName, user_id: window.user_id, seconds: window.seconds},function(data) {
          $('#quizCreateModal').foundation('reveal', 'close');
-        window.list.fetch({update: true});
+         $('img#quizLoader').show();
+        window.list.fetch({update: true}).complete(function() {
+            $('img#quizLoader').hide();
+        });
+
    
         $('#createQuizButton').removeClass('disabled');
             });
             }
 
     function refreshQuiz(){
-        window.list.fetch({update: true});
+        $('img#quizLoader').show();
+        window.list.fetch({update: true}).complete(function() {
+            $('img#quizLoader').hide();
+        });
 
     }
 
@@ -288,10 +319,6 @@
   
         </section>
     </nav>
-    <div data-alert class="alert-box success" id="result" style="display:none;">
-
-    <a href="#" class="close">&times;</a>
-    </div>
 
     <div id="loginModal" class="reveal-modal xlarge">
         <div class="large-12 columns">
