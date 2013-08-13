@@ -189,7 +189,11 @@ def answer_quiz(quiz_id):
     then = quiz.last_answered
 
     time_elapsed = now - then
-    response.time_elapsed = int(time_elapsed.seconds)
+    seconds = int(time_elapsed.seconds)
+    if(time_elapsed.microseconds > 50000):
+        seconds += 1
+
+    response.time_elapsed = seconds
     quiz.last_answered = datetime.now()
     db_session.commit()
 
