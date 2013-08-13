@@ -142,11 +142,12 @@
                 }
                 $result.slideDown();
                 $('h5#points').html(data['score']);
-            });
-
             questionsView.proceedNext();
             questionsView.showCurrent();
-        }
+
+            });
+
+                    }
     });
 
 
