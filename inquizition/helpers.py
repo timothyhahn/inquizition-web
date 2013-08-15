@@ -1,72 +1,73 @@
-from database import db_session
+from inquizition import db
 from models import Question, Answer, Result, Response
-import random,csv
+import random
+import csv
+
 
 def load_questions():
     questions = list()
     with open('trivia.csv', 'rb') as triviafile:
         reader = csv.reader(triviafile, delimiter=',')
         for row in reader:
-    
             question = dict()
             # Ensure Length
             if len(row) != 6:
                 print "ERROR: Wrong number of fields"
                 print row
                 break
-    
+
             question['question'] = row[0]
             question['answers'] = row[1:5]
             question['correct_answer'] = row[5]
-            
+
             # Ensure correctness
             if question['correct_answer'] not in question['answers']:
                 print "ERROR: Correct answer not one of given answers"
                 print "ERROR: Correct answer is '%s'" % (question['correct_answer'])
                 for a in question['answers']:
                     print "ERROR: Possible answer is '%s'" % (a)
-    
+
             answer_set = set(question['answers'])
             correct_set = set((question['correct_answer'],))
             question['answers'] = list(answer_set - correct_set)
-    
+
             # Ensure removedness
             if len(question['answers']) != 3:
                 print "ERROR: Correct still in answer"
                 print "ERROR: Correct answer is '%s'" % (question['correct_answer'])
                 for a in question['answers']:
                     print "ERROR: Possible answer is '%s'" % (a)
-    
+
             questions.append(question)
             print question
 
     for question in questions:
         q = Question.query.filter(Question.text == question['question']).first()
         if q:
-            print "UPDATING: %s" %(question['question'])
+            print "UPDATING: %s" % (question['question'])
         else:
             print "ADDING: %s" % (question['question'])
             q = Question(text=question['question'])
-            db_session.add(q)
-            db_session.flush()
-            db_session.refresh(q)
+            db.session.add(q)
+            db.session.flush()
+            db.session.refresh(q)
 
             ca = Answer(text=str(question['correct_answer']), question_id=q.id)
-            oa1= Answer(text=str(question['answers'][0]), question_id=q.id)
-            oa2= Answer(text=str(question['answers'][1]), question_id=q.id)
-            oa3= Answer(text=str(question['answers'][2]), question_id=q.id)
+            oa1 = Answer(text=str(question['answers'][0]), question_id=q.id)
+            oa2 = Answer(text=str(question['answers'][1]), question_id=q.id)
+            oa3 = Answer(text=str(question['answers'][2]), question_id=q.id)
 
             answers = [ca, oa1, oa2, oa3]
             random.shuffle(answers)
 
             for a in answers:
-                db_session.add(a)
+                db.session.add(a)
 
-            db_session.flush()
-            db_session.refresh(ca)
+            db.session.flush()
+            db.session.refresh(ca)
             q.correct_answer_id = ca.id
-        db_session.add(q)
-    db_session.commit()
+        db.session.add(q)
+    db.session.commit()
 
 
 def generate_results(quiz_id):
@@ -77,7 +78,7 @@ def generate_results(quiz_id):
         user_set.add(response.user_id)
 
     user_list = list(user_set)
-        
+
     scores_dict = dict()
     # For each user calculate result
     for user_id in user_list:
@@ -100,62 +101,61 @@ def generate_results(quiz_id):
         if result:
             result.score = scores_dict[user_id]
         else:
-            result = Result(user_id = user_id, quiz_id = quiz_id, score = scores_dict[user_id])
-        db_session.add(result)
-        
-    db_session.commit()
+            result = Result(user_id=user_id, quiz_id=quiz_id, score=scores_dict[user_id])
+        db.session.add(result)
 
-
+    db.session.commit()
 
 
 def gen_math():
-    operation = random.randint(0,2) # 0 add 1 sub 2 mult
+    operation = random.randint(0, 2)  # 0 add 1 sub 2 mult
     if operation > 1:
-        first_num = random.randint(1,15)
-        second_num = random.randint(1,15)
+        first_num = random.randint(1, 15)
+        second_num = random.randint(1, 15)
     else:
-        first_num = random.randint(1,40)
-        second_num = random.randint(1,40)
+        first_num = random.randint(1, 40)
+        second_num = random.randint(1, 40)
     if operation is 0:
         question = "What is %d + %d" % (first_num, second_num)
         correct_answer = first_num + second_num
         other_answer1 = first_num * second_num
         other_answer2 = first_num - second_num
-        other_answer3 = (first_num - random.randint(2,4)) + second_num
+        other_answer3 = (first_num - random.randint(2, 4)) + second_num
     elif operation is 1:
         question = "What is %d - %d" % (first_num, second_num)
         correct_answer = first_num - second_num
-        other_answer1 = first_num - (random.randint(2,5) + second_num)
+        other_answer1 = first_num - (random.randint(2, 5) + second_num)
         other_answer2 = first_num + second_num
-        other_answer3 = (first_num - random.randint(3,6)) - second_num
+        other_answer3 = (first_num - random.randint(3, 6)) - second_num
     else:
         question = "What is %d * %d" % (first_num, second_num)
         correct_answer = first_num * second_num
-        other_answer1 = first_num * (random.randint(2,3) + second_num)
+        other_answer1 = first_num * (random.randint(2, 3) + second_num)
         other_answer2 = first_num + second_num
-        other_answer3 = (first_num + random.randint(2,5)) * second_num
+        other_answer3 = (first_num + random.randint(2, 5)) * second_num
 
     q = Question(text=question)
-    db_session.add(q)
-    db_session.flush()
-    db_session.refresh(q)
+    db.session.add(q)
+    db.session.flush()
+    db.session.refresh(q)
 
     ca = Answer(text=str(correct_answer), question_id=q.id)
-    oa1= Answer(text=str(other_answer1), question_id=q.id)
-    oa2= Answer(text=str(other_answer2), question_id=q.id)
-    oa3= Answer(text=str(other_answer3), question_id=q.id)
+    oa1 = Answer(text=str(other_answer1), question_id=q.id)
+    oa2 = Answer(text=str(other_answer2), question_id=q.id)
+    oa3 = Answer(text=str(other_answer3), question_id=q.id)
 
     answers = [ca, oa1, oa2, oa3]
     random.shuffle(answers)
 
     for a in answers:
-        db_session.add(a)
+        db.session.add(a)
 
-    db_session.flush()
-    db_session.refresh(ca)
+    db.session.flush()
+    db.session.refresh(ca)
     q.correct_answer_id = ca.id
-    db_session.add(q)
-    db_session.commit()
+    db.session.add(q)
+    db.session.commit()
+
 
 def gen_dummy_data():
     for _ in range(1, 100):

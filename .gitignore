@@ -1,3 +1,5 @@
 venv/
+cover/
+.coverage
 *.pyc
 *.swp

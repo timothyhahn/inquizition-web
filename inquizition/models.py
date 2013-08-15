@@ -1,24 +1,21 @@
-from sqlalchemy import Column, Integer, String, DateTime, Boolean, ForeignKey
-from sqlalchemy.orm import relationship, backref
+from inquizition import db
 from datetime import datetime
-from flask import jsonify
-from database import Base, db_session
 import json
 
 
-class Quiz(Base):
+class Quiz(db.Model):
     __tablename__ = 'quiz'
-    id = Column(Integer, primary_key=True)
-    name = Column(String(50), nullable=False)
-    start_time = Column(DateTime)
-    end_time = Column(DateTime)
-    last_answered = Column(DateTime)
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50), nullable=False)
+    start_time = db.Column(db.DateTime)
+    end_time = db.Column(db.DateTime)
+    last_answered = db.Column(db.DateTime)
 
-    questions = Column(String(100)) ## IDs stored as json
-                                    ## For example: {1, 2, 3, 4}
-    responses = relationship('Response', backref='quiz')
-    results = relationship('Result', backref='quiz')
-    
+    questions = db.Column(db.String(100))  # IDs stored as json
+                                     # For example: {1, 2, 3, 4}
+    responses = db.relationship('Response', backref='quiz')
+    results = db.relationship('Result', backref='quiz')
+
     def __init__(self, name=None, start_time=None, end_time=None):
         self.name = name
         self.start_time = start_time
@@ -47,16 +44,15 @@ class Quiz(Base):
         quiz_dict['questions'] = questions_list
 
         return quiz_dict
-        
 
-class User(Base):
+
+class User(db.Model):
     __tablename__ = 'user'
-    id = Column(Integer, primary_key=True)
-    name = Column(String(80), nullable=False)
-    responses = relationship('Response', backref='user')
-    results = relationship('Result', backref='user')
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(80), nullable=False)
+    responses = db.relationship('Response', backref='user')
+    results = db.relationship('Result', backref='user')
 
-    
     def __init__(self, name=None):
         self.name = name
 
@@ -70,14 +66,14 @@ class User(Base):
         return user_dict
 
 
-class Response(Base):
+class Response(db.Model):
     __tablename__ = 'response'
-    id = Column(Integer, primary_key=True)
-    question_id = Column(Integer, ForeignKey('question.id'), nullable=False)
-    user_id = Column(Integer, ForeignKey('user.id'), nullable=False)
-    quiz_id = Column(Integer, ForeignKey('quiz.id'), nullable=False)
-    user_response = Column(Integer)
-    time_elapsed = Column(Integer)
+    id = db.Column(db.Integer, primary_key=True)
+    question_id = db.Column(db.Integer, db.ForeignKey('question.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    quiz_id = db.Column(db.Integer, db.ForeignKey('quiz.id'), nullable=False)
+    user_response = db.Column(db.Integer)
+    time_elapsed = db.Column(db.Integer)
 
     def __init__(self, question_id=None, user_id=None, quiz_id=None, user_response=None):
         self.question_id = question_id
@@ -86,24 +82,25 @@ class Response(Base):
         self.answered = False
         self.user_response = user_response
         self.time_elapsed = None
-        
+
     def __repr__(self):
         return '<Response %d>' % (self.id)
 
-class Result(Base):
+
+class Result(db.Model):
     __tablename__ = 'result'
-    id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey('user.id'), nullable=False)
-    quiz_id = Column(Integer, ForeignKey('quiz.id'), nullable=False)
-    score = Column(Integer)
-    date = Column(DateTime, nullable=False)
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    quiz_id = db.Column(db.Integer, db.ForeignKey('quiz.id'), nullable=False)
+    score = db.Column(db.Integer)
+    date = db.Column(db.DateTime, nullable=False)
 
     def __init__(self, user_id=None, quiz_id=None, score=None):
         self.user_id = user_id
         self.quiz_id = quiz_id
         self.score = score
         self.date = datetime.now()
-        
+
     def __repr__(self):
         return '<Result %d>' % (self.id)
 
@@ -119,14 +116,13 @@ class Result(Base):
         return result_dict
 
 
-
-class Question(Base):
+class Question(db.Model):
     __tablename__ = 'question'
-    id = Column(Integer, primary_key=True)
-    text = Column(String(120), nullable=False)
-    correct_answer_id = Column(Integer)
-    responses = relationship('Response', backref='question')
-    answers = relationship('Answer', backref='question')
+    id = db.Column(db.Integer, primary_key=True)
+    text = db.Column(db.String(120), nullable=False)
+    correct_answer_id = db.Column(db.Integer)
+    responses = db.relationship('Response', backref='question')
+    answers = db.relationship('Answer', backref='question')
 
     def __init__(self, text=None):
         self.text = text
@@ -148,18 +144,19 @@ class Question(Base):
         question['answers'] = answer_list
         return question
 
-class Answer(Base):
-    __tablename__ = 'answer'
-    id = Column(Integer, primary_key=True)
-    text = Column(String(120), nullable=False)
-    question_id = Column(Integer, ForeignKey('question.id'), nullable=False)
 
-    def __init__(self,text=None, question_id = None):
+class Answer(db.Model):
+    __tablename__ = 'answer'
+    id = db.Column(db.Integer, primary_key=True)
+    text = db.Column(db.String(120), nullable=False)
+    question_id = db.Column(db.Integer, db.ForeignKey('question.id'), nullable=False)
+
+    def __init__(self, text=None, question_id=None):
         self.text = text
         self.question_id = question_id
-    
+
     def data(self):
+        answer = dict()
         answer['id'] = self.id
         answer['text'] = self.text
         return answer
-

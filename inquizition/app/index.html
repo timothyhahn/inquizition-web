@@ -12,286 +12,32 @@
     <title>Inquizition - Nobody expects us!</title>
     <script src="js/vendor/head.load.min.js"></script>
     
-    <script>
-    var _prum = [['id', '520a176dabe53d404c000000'],
-                 ['mark', 'firstbyte', (new Date()).getTime()]];
-    (function() {
-        var s = document.getElementsByTagName('script')[0]
-          , p = document.createElement('script');
-        p.async = 'async';
-        p.src = '//rum-static.pingdom.net/prum.min.js';
-        s.parentNode.insertBefore(p, s);
-    })();
-    </script>
-    
    
-    <script type="text/template" id="list-template">
-
-        <div class="row together">
-            <div class="row wrap">
-                <div class="large-8 columns">
-                    <h2 class="title">Let’s play Inquizition!</h2>
-                    <p>Select an ongoing game below or create your own game!</p>
-
-                    <hr />
-                </div>
-                <div class="large-4 columns"><img src="/app/img/loader.gif" alt="Loading..." class="loader" id="quizLoader" style="display:none"/>
-                </div>
-
-            </div>
-            <div class="row wrap">
-                <div class="large-12 columns">
-                    <div class="quizInfo"></div>
-                    
-                    <button onClick="generateQuiz()" class="large button expand" data-reveal-id="quizCreateModal"><i class="foundicon-plus"></i></button>
-                </div>
-            </div>
-        </div>
-    </script>
-
-    <script type="text/template" id="results-template">
-        <div class="row wrap together" id="results">
-            <div class="large-12 columns">
-                  <h1>Results:</h1>
-                  <p>Results are continuously updated</p>
-                  <table>
-                    <thead>
-                    <tr>
-                    <th width="200">User</th>
-                    <th width="300">Score</th>
-                    <th>Date</th>
-                    </tr>
-                </thead>
-              <tbody class="results">
-              </tbody>
-                  </table>
-            </div>
-        </div>
-    </script>
-
-    <script type="text/template" id="result-template">
-        <td><%= username %></td>
-        <td><%= score %></td>
-        <td><%= date %></td>
-    </script>
-
-    <script type="text/template" id="quiz-template">
-      <% if (parseInt(secondsLeft) > 0) { %>
-        <button data-id="<%= id %>" class="large button expand join">
-          <%= name %>
-          <br />
-          Starting in: <%= secondsLeft %> seconds 
-        </button>
-      <% } %>
-    </script>
-
-    <script type="text/template" id="question-template">
-        <div class="large-12 columns">
-          <h3><%= text %></h3>
-          <% _.each(answers, function(answer){ %>
-            <button class="large button expand answer" data-id="<%= answer.id%>"><%= answer.text %></button>
-            <% }); %>
-          </div>
-
-        <hr />
-
-       
-    </script>
-    <script type="text/template" id="questions-template">
-        <div class="row wrap together">
-            <div class="row " style="margin-left:20px">
-            <div class="large-8 columns">
-               <h4>Points</h4>
-              <div id="points"><h5 id ="points">0</h5></div>
-              </div>
-            <div class="large-4 columns"><br /><img src="/app/img/loader.gif" alt="Loading..." class="loader" id="responseLoader" style="display:none;"/></div>
-
-            <span class="result" ></span>
-
-            </div>
-            <div class="row">
-                <div class="large-12 columns">
-                <div data-alert class="alert-box success" id="result" style="visibility:hidden;">
-
-                    <a href="#" class="close">&times;</a></div>
-                </div>
-                </div>
-            </div>
-
-
-        <div class="questions" id="questions">
-
-        </div>
-        <div class="row wrap together">
-         <div class="large-12 columns" id="info">
-            <h4>Progress:</h4> <div class="progress large-12 round"><span class="meter" id="questionProgress" style="width: 0%"></span></div>
-            
-          
-        </div>
-        </div>
-
-    </script>
-
-    <script type="text/template" id="countdown-template">
-        <div class="row wrap together center" id="countdown" style="display:none;">
-            <div class="large-12 columns" id="join">
-                <h1>Waiting for other players</h1>
-                <div class="progress large-12 round"><span class="meter" id="waitProgress" style="width: 0%"></span></div>
-            </div>
-        </div>
-    </script>
-
-
     <script type="application/javascript">
       // Kicks off quiz list fetch
-    var prefix = "/app/js/vendor/"
-    head.js("/app/css/foundation.min.css", "/app/css/general_foundicons.css", "/app/css/inquizition.css", prefix + "custom.modernizr.js", prefix + "jquery-min.js", prefix + "underscore-min.js", prefix + "backbone-min.js", prefix + "foundation.min.js", "js/Inquizition.js",function() {
-        
-        // Key Handlers
-        jQuery(function() {
-        // If Enter is pressed inside quiz name modal input
-        $('input#quizName').keypress(function(e) {
-        if(e.which == 13) {
-            createQuiz();
-         }
-        });
-        $('input#username').keypress(function(e) {
-        if(e.which == 13) {
-            loginUser();
-         }
-        });
-
-        });
-
-        });
-
-    // Gets potential quiz names
-    function generateQuiz() {
-        this.quizName = "";
-        changeTime(window.seconds);
-        $.get('/name', function(data) {
-            this.quizName = data;
-            }).done(function() {
-              $('input#quizName').val(this.quizName);
-              });
-    }
-
-    // Sends POST to create quiz
-    function createQuiz(){
-        this.quizName = $('input#quizName').val();
-        $('#createQuizButton').addClass('disabled');
-        $.post('/quiz/create', { quiz_name: this.quizName, user_id: window.user_id, seconds: window.seconds},function(data) {
-         $('#quizCreateModal').foundation('reveal', 'close');
-         $('img#quizLoader').show();
-        window.list.fetch({update: true}).complete(function() {
-            $('img#quizLoader').hide();
-        });
-
-   
-        $('#createQuizButton').removeClass('disabled');
-            });
-            }
-
-    function refreshQuiz(){
-        $('img#quizLoader').show();
-        window.list.fetch({update: true}).complete(function() {
-            $('img#quizLoader').hide();
-        });
-
-    }
-
-    function loginUser() {
-        window.user_id = undefined;
-        $.post('/login', {
-            username: $('input#username').val()
-            }).done(function(data) {
-              window.user_id = data.id;
-              $('#loginModal').foundation('reveal', 'close');
-              createCookie('user_id', data.id, 7);
-              createCookie('username', data.name, 7);
-              $('a#userName').html(data.name);
-              });
-    }
-
-    function createCookie(name,value,days) {
-         if (days) {
-            var date = new Date();
-            date.setTime(date.getTime()+(days*24*60*60*1000));
-            var expires = "; expires="+date.toGMTString();
+    var vendor_prefix = '/app/js/vendor/';
+    var css_prefix = '/app/css/';
+    head.js(css_prefix + 'foundation.min.css', css_prefix + 'general_foundicons.css', css_prefix + 'inquizition.css');
+    head.js(vendor_prefix + 'custom.modernizr.js', vendor_prefix + 'jquery-min.js', vendor_prefix + 'underscore-min.js', vendor_prefix + 'backbone-min.js', vendor_prefix + 'foundation.min.js',function() {
+        var js_prefix = '/app/js/';
+        var files = ['models/models.js',
+        'collections/question.js', 'collections/quizinfo.js', 'collections/result.js',
+                     
+                     'routers/inquizition.js',
+                     'views/countdown.js', 'views/createquiz.js', 'views/login.js', 'views/question.js', 'views/quizinfo.js', 'views/result.js']
+        for (var i = 0; i < files.length; i++){
+            head.js(js_prefix + files[i]);
         }
-        else var expires = "";
-            document.cookie = name+"="+value+expires+"; path=/";
-    }
-
-
-        function readCookie(name) {
-            var nameEQ = name + "=";
-            var ca = document.cookie.split(';');
-            for(var i=0;i < ca.length;i++) {
-                var c = ca[i];
-                while (c.charAt(0)==' ') c = c.substring(1,c.length);
-                if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
-            }
-            return null;
-        }
-
-    function eraseCookie(name) {
-        createCookie(name,"",-1);
-    }
-
-        function logout(){
-        eraseCookie('user_id');
-        eraseCookie('username');
-        window.user_id = undefined;
-        window.user_name = undefined;
-        $('a#userName').html('User');
-        validateUser();
-    }
-
-    function validateUser() {
-        if(readCookie('user_id') != null && readCookie('username') != null) {       
-            $.post('/login', {
-                username: readCookie('username')
-            }).done(function(data) {
-            window.user_id = data.id;
-
-            window.username = data.name;
-            createCookie('user_id', data.id, 7);
-            createCookie('username', data.name, 7);
-            $('#loginModal').foundation('reveal', 'close');
-            $('a#userName').html(window.username);
-              });
-            
-        } else {
-            window.user_id == undefined;
-        }
-
-        if(window.user_id == undefined && readCookie('user_id') == null) {
-            $('#loginModal').foundation('reveal', 'open', {
-                closeOnBackgroundClick: false ,
-                closeOnEsc: false,
-
-              });
-            
-
-        }
-            
-    }
-    function changeTime(seconds){
-        window.seconds = seconds;
-        $('button.time').addClass('secondary');
-        $('button#'+seconds).removeClass('secondary');
-    }
-    function hideBack(){
-        $('li.title.back.js-generated').hide();
-    }
-
+        head.js(js_prefix +'app.js');
+    });
 
     </script>
 
   </head>
 
   <body>
+    <!-- Main Layout -->
+    <!-- Top Bar -->
     <nav class="top-bar">
         <ul class="title-area">
         <!-- Title Area -->
@@ -302,9 +48,11 @@
             </a>
           </h1>
         </li>
+        <!-- For Mobile -->
         <li class="toggle-topbar menu-icon"><a href="#" onClick="hideBack()"><span>Menu</span></a></li>
       </ul>
 
+      <!-- Right side of top bar -->
       <section class="top-bar-section">
         <ul class="right">
             <li class="has-dropdown">
@@ -312,60 +60,203 @@
                 <ul class="dropdown">
                   <li ><label>User Actions</label></li>
                   <li><a href="#user">Results</a></li>
-                  <li><a href="#" onClick="logout()">Logout</a></li>
+                  <li><a href="#" onClick="app.loginView.logoutUser()">Logout</a></li>
                 </ul>
             </li>
         </ul>
-  
         </section>
-    </nav>
+    </nav> <!-- End TopBar -->
 
-    <div id="loginModal" class="reveal-modal xlarge">
-        <div class="large-12 columns">
-            <label>Username:</label>
-            <input type="text" placeholder="Username" id="username">
-            <a class="medium button" onClick="loginUser()">Play!</a>
-        </div>
-
-    </div>
-
-    <div id="quizCreateModal" class="reveal-modal">
-        <div class="row">
-        <div class="large-12 columns">
-            <label>Quiz Name:</label>
-            <input type="text" placeholder="Generating Quiz Name..." id="quizName">
-        </div>
-        </div>
-        <div class="row">
-            <div class="large-12 columns">
-
-           <p>Starts in: (seconds)</p>
-                
-            <ul class="button-group">
-                <li><button onClick="changeTime(10)" class="time medium button secondary" id="10">10</button></li>
-                <li><button onClick="changeTime(30)" class="time medum button" id="30">30</button></li>
-                <li><button onClick="changeTime(60)" class="time medium button secondary" id="60">60</button></li>
-            </ul>
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="large-12 columns">
-                <a class="medium button" id="createQuizButton" onClick="createQuiz()">Create Quiz</a>
-            </div>
-        </div>
-        <a class="close-reveal-modal">&#215;</a>
-
-    </div>
-
+    <!-- Content goes here -->
     <div class="large-12 columns">
         <div id="container">
         </div>
     </div>
 
+    <!-- Modals-->
+
+    <!-- //Quiz Creation Modal -->
+    <div id="quizCreateModal" class="reveal-modal">
+    </div><!-- //End Quiz Creation Modal -->
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="reveal-modal xlarge">
+    </div> <!-- End Login Modal -->
+
+    
+    <!-- Templates -->
+
+    <!-- List all quizzes template -->
+    <script type="text/template" id="list-template">
+        <div class="row together">
+
+            <!-- // Instructions + Loader -->
+            <div class="row wrap">
+                <div class="large-8 columns">
+                    <h2 class="title">Let’s play Inquizition!</h2>
+                    <p>Select an ongoing game below or create your own game!</p>
+                    <hr />
+                </div>
+                <div class="large-4 columns"><img src="/app/img/loader.gif" alt="Loading..." class="loader" id="quizLoader" style="display:none"/>
+                </div>
+            </div>
+
+            <!-- // Quizzes + Add -->
+            <div class="row wrap">
+                <div class="large-12 columns">
+
+                    <!-- // Filled with list of quiz information -->
+                    <div class="quizInfo"></div>
+                    
+                    <!-- // Create quiz button -->
+                    <button onClick="app.createQuizView.show()"class="large button expand add"><i class="foundicon-plus"></i></button>
+                </div>
+            </div>
+        </div>
+    </script>
+
+    <!-- Quiz Results Template -->
+    <script type="text/template" id="results-template">
+        <div class="row wrap together" id="results">
+            <div class="large-12 columns">
+                  <h1>Results:</h1>
+                  <p>Results are continuously updated</p>
+                  <table>
+                        <thead>
+                        <tr>
+                        <th width="200">User</th>
+                        <th width="300">Score</th>
+                        <th>Date</th>
+                        </tr>
+                        </thead>
+                        <!-- // Filled with the results -->
+                        <tbody class="results">
+                        </tbody>
+                    </table>
+            </div>
+        </div>
+    </script>
+
+    <!-- Quiz Individual Result Template -->
+    <script type="text/template" id="result-template">
+        <td><%= username %></td>
+        <td><%= score %></td>
+        <td><%= date %></td>
+    </script>
+
+    <!-- Quiz Information Template -->
+    <script type="text/template" id="quiz-template">
+      <% if (parseInt(secondsLeft) > 0) { %>
+        <button data-id="<%= id %>" class="large button expand join">
+          <%= name %>
+          <br />
+          Starting in: <%= secondsLeft %> seconds 
+        </button>
+      <% } %>
+    </script>
+
+    <!-- Question Template -->
+    <script type="text/template" id="question-template">
+        <div class="large-12 columns">
+            <h3><%= text %></h3>
+            <% _.each(answers, function(answer){ %>
+                <button class="large button expand answer" data-id="<%= answer.id%>"><%= answer.text %></button>
+            <% }); %>
+        </div>
+    </script>
+
+    <!-- Question Wrapper Template -->
+    <script type="text/template" id="questions-template">
+        <!-- // Top Section (Points + Loader + Correctness) -->
+        <div class="row wrap together">
+            <div class="row " style="margin-left:20px">
+            <div class="large-8 columns">
+               <h4>Points</h4>
+              <div id="points"><h5 id ="points">0</h5></div>
+              </div>
+            <div class="large-4 columns"><br /><img src="/app/img/loader.gif" alt="Loading..." class="loader" id="responseLoader" style="display:none;"/></div>
+            </div>
+            <div class="row">
+                <div class="large-12 columns">
+                <div data-alert class="alert-box success" id="result" style="visibility:hidden;">
+
+                    <a href="#" class="close">&times;</a></div>
+                </div>
+                </div>
+            </div>
+
+        <!-- // Middle Section (Actual Question) -->
+        <div class="questions" id="questions">
+        </div>
+
+        <!-- // Bottom Section (Progress Section) -->
+        <div class="row wrap together">
+            <div class="large-12 columns" id="info">
+                <h4>Progress:</h4> <div class="progress large-12 round"><span class="meter" id="questionProgress" style="width: 0%"></span></div>
+            </div>
+        </div>
+    </script>
+
+
+    <!-- Countdown Template -->
+    <script type="text/template" id="countdown-template">
+        <div class="row wrap together center" id="countdown" style="display:none;">
+            <div class="large-12 columns" id="join">
+                <h1>Waiting for other players</h1>
+                <div class="progress large-12 round"><span class="meter" id="waitProgress" style="width: 0%"></span></div>
+            </div>
+        </div>
+    </script>
+
+
+    <!-- Quiz Create Template -->
+    <script type="text/template" id="quiz-create-modal-template">
+            <!-- //First Row (Quiz Name) -->
+            <div class="row">
+                <!-- //Quiz Name -->
+                <div class="large-12 columns"> 
+                    <label>Quiz Name:</label>
+                    <input type="text" placeholder="Generating Quiz Name..." id="quizName" value="<%= quizName %>"></input>
+                </div>
+            </div>
+
+            <!-- //Second Row (Change time) -->
+            <div class="row">
+                <div class="large-12 columns">
+                    <p>Starts in: (seconds)</p>
+                    <ul class="button-group">
+                        <li><button class="time medium button <% if (seconds != 10) { %> secondary <% } %> change" data-id="10">10</button></li>
+                        <li><button class="time medum button <% if (seconds != 30) { %> secondary <% } %>  change" data-id="30">30</button></li>
+                        <li><button class="time medium button <% if (seconds != 60) { %> secondary <% } %>  change" data-id="60">60</button></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- //Third Row (Create Button) -->
+            <div class="row">
+                <div class="large-12 columns">
+                    <a class="medium button create" id="createQuizButton">Create Quiz</a>
+                </div>
+            </div>
+
+            <!-- //Close Modal Button -->
+            <a class="close-reveal-modal">&#215;</a>
+    </script>
+
+    <!-- Login Template -->
+    <script type="text/template" id="login-modal-template">
+        <div class="large-12 columns">
+            <label>Username:</label>
+            <input type="text" placeholder="Username" id="username">
+            <a class="medium button loginUser">Play!</a>
+        </div>
+    </script>
+
+    <!-- Foundation Starter -->
     <script>
       head.ready(function() {
-        $(document).foundation()
+        $(document).foundation();
+        $('li.title.back.js-generated').hide();
       });
     </script>
  

@@ -1,12 +1,15 @@
 from flask.ext.script import Manager, Server
 from flask_debugtoolbar import DebugToolbarExtension
+import os
+import sys
+if sys.argv[1] == 'test' or sys.argv[1] == 'coverage':
+    os.environ['TESTING'] = 'true'
 
 from inquizition import app
 import inquizition.settings as settings
 
 app.debug = settings.debug
 app.config['SECRET_KEY'] = settings.secret_key
-
 
 toolbar = DebugToolbarExtension(app)
 
@@ -21,6 +24,7 @@ def gunicorn():
     import subprocess
     subprocess.call(['./scripts/gunicorn.sh'])
 
+
 @manager.command
 def tornado():
     "Runs this with tornado (Super non-blocking server)"
@@ -32,7 +36,7 @@ def tornado():
     http_server = HTTPServer(WSGIContainer(app))
     http_server.listen(8000)
     IOLoop.instance().start()
-    
+
 
 @manager.command
 def init_db():
@@ -41,6 +45,7 @@ def init_db():
     from inquizition.database import init_db
     init_db()
 
+
 @manager.command
 def dummy_db():
     "Adds dummy questions to the DB"
@@ -48,12 +53,14 @@ def dummy_db():
     from inquizition.helpers import gen_dummy_data
     gen_dummy_data()
 
+
 @manager.command
 def load_db():
     "Loads questions from csv to the DB"
-    print  "Loading CSV into DB"
+    print "Loading CSV into DB"
     from inquizition.helpers import load_questions
     load_questions()
+
 
 @manager.command
 def clear_db():
@@ -70,6 +77,17 @@ def purge_db():
     from inquizition.database import purge_db
     purge_db()
 
+
+@manager.command
+def test():
+    import subprocess
+    subprocess.call(['nosetests'])
+
+
+@manager.command
+def coverage():
+    import subprocess
+    subprocess.call(['nosetests', '--with-coverage', '--cover-erase', '--cover-package=inquizition', '--cover-html'])
 
 if __name__ == "__main__":
     manager.run()

@@ -1,20 +1,20 @@
-from inquizition import app
-from flask import url_for, redirect, request, render_template, session, flash,jsonify
-from database import db_session
+from inquizition import app, db
+from flask import url_for, redirect, request, jsonify
 from models import Quiz, Result, User, Question, Answer, Response
 from datetime import datetime, timedelta
 from helpers import generate_results
-import json, random
+import json
+import random
 
-# Homepage
-@app.route('/')
+
+@app.route('/')  # Homepage
 def home():
     return redirect(url_for('static', filename='index.html'))
 
-
 # API
-
 ## GET
+
+
 @app.route('/quiz', methods=['GET'])
 def get_quizzes():
     ## List all quizzes that are available
@@ -29,25 +29,27 @@ def get_quizzes():
             quizzes_dict['quizzes'].append(quiz.info())
             json_results = jsonify(quizzes_dict)
 
-    else: 
+    else:
         json_results = jsonify(dict())
     return json_results
 
+
 @app.route('/name')
 def get_random_name():
-    f = open('wordlist','r')
+    f = open('wordlist', 'r')
     words = []
     for line in f:
         words.append(line.strip('\n'))
     f.close()
-    
+
     word1 = str(words[random.randint(0, len(words) - 1)]).capitalize()
     word2 = str(words[random.randint(0, len(words) - 1)]).capitalize()
     return '%s %s' % (word1, word2)
 
-@app.route('/quiz/<int:quiz_id>',methods=['GET'])
+
+@app.route('/quiz/<int:quiz_id>', methods=['GET'])
 def get_quiz(quiz_id):
-    ## Find quiz at id
+    ## Find quiz at idone.drexel.edu
     quiz = Quiz.query.get(quiz_id)
 
     ## TODO: Check that you can only download maybe 10 seconds before it starts
@@ -58,6 +60,7 @@ def get_quiz(quiz_id):
     ## Convert to json
     return json_results
 
+
 @app.route('/quiz/seconds/<int:quiz_id>')
 def get_seconds(quiz_id):
     quiz = Quiz.query.get(quiz_id)
@@ -65,9 +68,10 @@ def get_seconds(quiz_id):
     if quiz:
         results = str((quiz.start_time - datetime.now()).seconds)
     else:
-        results =""
+        results = ""
 
     return results
+
 
 @app.route('/quiz/joiners/<int:quiz_id>', methods=['GET'])
 def get_quiz_joiners(quiz_id):
@@ -81,7 +85,7 @@ def get_quiz_joiners(quiz_id):
     for user_id in user_list:
         user_dict = dict()
         user = User.query.get(user_id)
-        
+
         user_dict['id'] = user.id
         user_dict['name'] = user.name
         joiner_list.append(user_dict)
@@ -90,7 +94,7 @@ def get_quiz_joiners(quiz_id):
     return jsonify(joiner_dict)
 
 
-@app.route('/quiz/results/<int:quiz_id>',methods=['GET'])
+@app.route('/quiz/results/<int:quiz_id>', methods=['GET'])
 def get_quiz_results(quiz_id):
     ## Find results for quiz and order them by score
     generate_results(quiz_id)
@@ -109,6 +113,7 @@ def get_quiz_results(quiz_id):
         json_results = jsonify(dict())
 
     return json_results
+
 
 @app.route('/user/<int:user_id>', methods=['GET'])
 def get_user_results(user_id):
@@ -140,6 +145,7 @@ def get_user_results(user_id):
 
     return json_results
 
+
 @app.route('/question/<int:question_id>', methods=['GET'])
 def get_question(question_id):
     ## Get question
@@ -152,10 +158,11 @@ def get_question(question_id):
     ## Convert to json
     return json_results
 
+
 @app.route('/question', methods=['GET'])
 def get_random_question():
     ## Get random question
-    query = db_session.query(Question)
+    query = db.session.query(Question)
     rowCount = int(query.count())
     question = query.offset(int(rowCount*random.random())).first()
 
@@ -168,6 +175,8 @@ def get_random_question():
     return json_results
 
 ## POST
+
+
 @app.route('/quiz/answer/<int:quiz_id>', methods=['POST'])
 def answer_quiz(quiz_id):
     ## TODO: Error handling if they try to answer the same question twice
@@ -195,7 +204,7 @@ def answer_quiz(quiz_id):
 
     response.time_elapsed = seconds
     quiz.last_answered = datetime.now()
-    db_session.commit()
+    db.session.commit()
 
     generate_results(quiz_id)
     result = Result.query.filter(Result.quiz_id == quiz_id).filter(Result.user_id == user_id).first()
@@ -213,10 +222,11 @@ def answer_quiz(quiz_id):
         result_dict['score'] = result.score
 
     json_results = jsonify(result_dict)
-    db_session.commit()
+    db.session.commit()
     return json_results
 
-@app.route('/quiz/create', methods=['GET','POST'])
+
+@app.route('/quiz/create', methods=['GET', 'POST'])
 def create_quiz():
 
     ## Create quiz
@@ -225,9 +235,9 @@ def create_quiz():
     quiz = Quiz(name=quiz_name)
     ## Pick questions for that quiz
     question_list = list()
-    question_count = db_session.query(Question).count()
+    question_count = db.session.query(Question).count()
 
-    for _ in range(0,10):
+    for _ in range(0, 10):
         searching = True
         while searching:
             number = random.randint(1, question_count - 1)
@@ -245,11 +255,15 @@ def create_quiz():
     quiz.end_time = quiz.start_time + timedelta(minutes=10)
     quiz.last_answered = quiz.start_time
 
-    db_session.add(quiz)
-    db_session.commit()
-    return "CREATED"
+    db.session.add(quiz)
+    db.session.commit()
 
-@app.route('/quiz/join/<int:quiz_id>', methods=['GET','POST'])
+    status_dict = dict()
+    status_dict['status'] = 'CREATED'
+    return jsonify(status_dict)
+
+
+@app.route('/quiz/join/<int:quiz_id>', methods=['GET', 'POST'])
 def join_quiz(quiz_id, user_id=None):
     ## TODO: Only allow joining once
     ## Get user from request
@@ -259,15 +273,16 @@ def join_quiz(quiz_id, user_id=None):
         user = User.query.get(user_id)
     quiz = Quiz.query.get(quiz_id)
     ## Create responses for user
-    for index in range(0,10):
+    for index in range(0, 10):
         questions = json.loads(quiz.questions)
         response = Response(question_id=questions[index], user_id=user.id, quiz_id=quiz_id)
-        response.correct_response="A"
-        db_session.add(response)
+        response.correct_response = "A"
+        db.session.add(response)
 
     ## Store responses for user
-    db_session.commit()
+    db.session.commit()
     return "JOINED"
+
 
 @app.route('/login', methods=['POST'])
 def login():
@@ -275,14 +290,12 @@ def login():
     user = User.query.filter(User.name == username).first()
     if not user:
         user = User(name=username)
-        db_session.add(user)
-        db_session.commit()
+        db.session.add(user)
+        db.session.commit()
     return jsonify(user.info())
-
 
 
 # TURN OFF DB
 @app.teardown_appcontext
 def shutdown_session(exception=None):
-    db_session.remove()
-
+    db.session.remove()
