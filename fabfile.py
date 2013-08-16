@@ -11,7 +11,7 @@ def deploy():
             run('git pull')
             run('pip install -r requirements.txt')
             run('python manage.py init_db')
+            run('python manage.py load_db')
             run('python manage.py gunicorn')
 
-    run('rm -rf /tmp/inquizition /tmp/inquizition.tar.gz')
     put('inquizition/app', '/var/www/')
