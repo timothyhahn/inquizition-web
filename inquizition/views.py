@@ -226,7 +226,7 @@ def answer_quiz(quiz_id):
     return json_results
 
 
-@app.route('/quiz/create', methods=['GET', 'POST'])
+@app.route('/quiz/create', methods=['POST'])
 def create_quiz():
 
     ## Create quiz
@@ -260,6 +260,7 @@ def create_quiz():
 
     status_dict = dict()
     status_dict['status'] = 'CREATED'
+    status_dict['quiz_id'] = quiz.id
     return jsonify(status_dict)
 
 
