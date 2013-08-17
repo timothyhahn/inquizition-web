@@ -10,7 +10,7 @@ var app = app || {};
       app.seconds = options.secondsLeft;
       app.decisecondsLeft = options.secondsLeft * 10;
       app.countDownInterval = window.setInterval(function () {
-        if(app.decisecondsLeft > 5 || app.decisecondsLeft > 1000) {
+        if(app.decisecondsLeft > 1 || app.decisecondsLeft < 1000) {
           app.decisecondsLeft--;
           deciTotal = app.seconds * 10;
           decisecondsTaken = deciTotal - app.decisecondsLeft;
