@@ -77,6 +77,7 @@ var app = app || {};
         },
 
         validateUser: function() {
+            console.log('trying to validate');
             // Login User
             if(this.readCookie('username') != null){
                 this.username = this.readCookie('username');

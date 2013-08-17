@@ -61,7 +61,7 @@ var app = app || {};
             return this;
         },
         add: function() {
-            console.log('fire');
+            //console.log('fire');
         },
     });
     app.listView = new ListView({

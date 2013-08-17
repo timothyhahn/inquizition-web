@@ -4,6 +4,9 @@ var app = app || {};
   app.Inquizition = Backbone.Router.extend({
     initialize: function () {
       app.createQuizView = new app.CreateQuizView();
+
+      // Check if User is logged in
+      app.loginView.validateUser();
     },
     routes: {
       '': 'home',
@@ -23,9 +26,6 @@ var app = app || {};
     },
     home: function () {
       this.clearAllIntervals();
-
-      // Check if User is logged in
-      app.loginView.validateUser();
 
       // Grab quizzes
       app.list.fetch();
