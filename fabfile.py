@@ -1,4 +1,5 @@
 from fabric.api import *
+from fabric.contrib.files import exists
 
 
 env.user = 'inquizition'
@@ -12,6 +13,8 @@ def deploy():
             run('pip install -r requirements.txt')
             run('python manage.py init_db')
             run('python manage.py load_db')
+            if exists('gunicorn.pid'):
+                run('kill $(cat gunicorn.pid)')
             run('python manage.py gunicorn')
 
     put('inquizition/app', '/var/www/')
