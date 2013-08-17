@@ -1,5 +1,6 @@
 var app = app || {};
 (function () {
+  // Router for entire app
   app.Inquizition = Backbone.Router.extend({
     initialize: function () {
       app.createQuizView = new app.CreateQuizView();
@@ -12,6 +13,7 @@ var app = app || {};
       'user': 'userResults'
     },
     clearAllIntervals: function () {
+      // Resets all the possible intervals
       window.clearInterval(app.resultsInterval);
       window.clearInterval(app.listCountInterval);
       window.clearInterval(app.listUpdateInterval);
@@ -21,7 +23,11 @@ var app = app || {};
     },
     home: function () {
       this.clearAllIntervals();
+
+      // Check if User is logged in
       app.loginView.validateUser();
+
+      // Grab quizzes
       app.list.fetch();
 
       var $result = $('div#result');
@@ -53,6 +59,7 @@ var app = app || {};
       $result.hide();
 
       app.list.fetch();
+      // Grabs the quiz needed
       var quiz = app.list.get(quizID);
       if (quiz === undefined) {
         app.inquizition.navigate('', true);
@@ -73,6 +80,7 @@ var app = app || {};
 
       var $result = $('div#result');
       $result.hide();
+      // Fetches the questions
       this.questions = new app.Questions(quizID);
       app.questionsView = new app.QuestionsView({collection: this.questions});
       app.quiz_id = quizID;
@@ -91,6 +99,7 @@ var app = app || {};
       var $result = $('div#result');
       app.results = new app.Results(quizID);
 
+      // Gets results
       app.results.fetch().complete(function () {
         $result.hide();
 

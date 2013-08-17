@@ -1,5 +1,6 @@
 var app = app || {};
 (function () {
+  // Collection of all the quiz information
   var QuizInfos = Backbone.Collection.extend({
     model: app.QuizInfo,
     url: '/quiz',

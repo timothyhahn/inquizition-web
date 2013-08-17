@@ -6,5 +6,4 @@ secret_key = 'secret'
 
 from os.path import expanduser
 home = expanduser("~")
-database_path = 'sqlite:///' + home + '/test.db'
-print database_path
+database_path = 'sqlite:///' + home + '/inquizition.db'

@@ -9,12 +9,12 @@ class Quiz(db.Model):
     name = db.Column(db.String(50), nullable=False)
     start_time = db.Column(db.DateTime)
     end_time = db.Column(db.DateTime)
-    last_answered = db.Column(db.DateTime)
 
     questions = db.Column(db.String(100))  # IDs stored as json
                                      # For example: {1, 2, 3, 4}
     responses = db.relationship('Response', backref='quiz')
     results = db.relationship('Result', backref='quiz')
+    timers = db.relationship('Timer', backref='quiz')
 
     def __init__(self, name=None, start_time=None, end_time=None):
         self.name = name
@@ -52,6 +52,7 @@ class User(db.Model):
     name = db.Column(db.String(80), nullable=False)
     responses = db.relationship('Response', backref='user')
     results = db.relationship('Result', backref='user')
+    timers = db.relationship('Timer', backref='user')
 
     def __init__(self, name=None):
         self.name = name
@@ -64,6 +65,19 @@ class User(db.Model):
         user_dict['id'] = self.id
         user_dict['name'] = self.name
         return user_dict
+
+
+class Timer(db.Model):
+    __tablename__ = 'timer'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    quiz_id = db.Column(db.Integer, db.ForeignKey('quiz.id'), nullable=False)
+    last_answered = db.Column(db.DateTime)
+
+    def __init(self, user_id=None, quiz_id=None, last_answered=None):
+        self.user_id = user_id
+        self.quiz_id = quiz_id
+        self.last_answered = last_answered
 
 
 class Response(db.Model):

@@ -1,6 +1,6 @@
 from inquizition import app, db
 from flask import url_for, redirect, request, jsonify
-from models import Quiz, Result, User, Question, Answer, Response
+from models import Quiz, Result, User, Question, Answer, Response, Timer
 from datetime import datetime, timedelta
 from helpers import generate_results
 import json
@@ -188,14 +188,15 @@ def answer_quiz(quiz_id):
     ## Get answer from request
     answer = (int)(request.form['answer'])
     ## Answer quiz
-    quiz = Quiz.query.get(quiz_id)
+    #quiz = Quiz.query.get(quiz_id)
     ## Store response
     response = Response.query.filter(Response.quiz_id == quiz_id).filter(Response.user_id == user_id).filter(Response.question_id == question_id).first()
 
     response.user_response = answer
 
     now = datetime.now()
-    then = quiz.last_answered
+    timer = Timer.query.filter(Timer.quiz_id == quiz_id).filter(Timer.user_id == user_id).first()
+    then = timer.last_answered
 
     time_elapsed = now - then
     seconds = int(time_elapsed.seconds)
@@ -203,7 +204,7 @@ def answer_quiz(quiz_id):
         seconds += 1
 
     response.time_elapsed = seconds
-    quiz.last_answered = datetime.now()
+    timer.last_answered = datetime.now()
     db.session.commit()
 
     generate_results(quiz_id)
@@ -253,7 +254,7 @@ def create_quiz():
         seconds_later = (int)(request.form['seconds'])
     quiz.start_time = datetime.now() + timedelta(seconds=seconds_later)
     quiz.end_time = quiz.start_time + timedelta(minutes=10)
-    quiz.last_answered = quiz.start_time
+    # REMOVE: quiz.last_answered = quiz.start_time
 
     db.session.add(quiz)
     db.session.commit()
@@ -273,6 +274,7 @@ def join_quiz(quiz_id, user_id=None):
     else:
         user = User.query.get(user_id)
     quiz = Quiz.query.get(quiz_id)
+    timer = Timer(quiz_id=quiz_id, user_id=user.id, last_answered=datetime.now())
     ## Create responses for user
     for index in range(0, 10):
         questions = json.loads(quiz.questions)
@@ -280,6 +282,7 @@ def join_quiz(quiz_id, user_id=None):
         response.correct_response = "A"
         db.session.add(response)
 
+    db.session.add(timer)
     ## Store responses for user
     db.session.commit()
     return "JOINED"

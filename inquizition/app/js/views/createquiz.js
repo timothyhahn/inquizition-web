@@ -5,7 +5,7 @@ var app = app || {};
         events: {
             'click .change': 'change',
             'click .create': 'create',
-            'keypress input#quizName': 'handleEnter',
+            'keypress input#quizName': 'handleEnter'
         },
         initialize: function() {
             _.bindAll(this, 'render');
@@ -17,7 +17,7 @@ var app = app || {};
             $modal = $('div#quizCreateModal');
             $modal.html(renderedContent);
         },
-        getName: function() {             
+        getName: function() {
             $.get('/name', function(data) {
                 app.createQuizView.quizName = data;
                 }).done(function() {

@@ -15,7 +15,7 @@ db = SQLAlchemy(app)
 if debug:
     from flask.ext.admin import Admin
     from flask.ext.admin.contrib.sqlamodel import ModelView
-    from models import User, Quiz, Question, Response, Result, Answer
+    from models import User, Quiz, Question, Response, Result, Answer, Timer
     DEBUG_TB_INTERCEPT_REDIRECTS = False
     admin = Admin(app)
     admin.add_view(ModelView(User, db.session))
@@ -24,6 +24,7 @@ if debug:
     admin.add_view(ModelView(Response, db.session))
     admin.add_view(ModelView(Result, db.session))
     admin.add_view(ModelView(Answer, db.session))
+    admin.add_view(ModelView(Timer, db.session))
 
 
 import inquizition.views
