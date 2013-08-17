@@ -78,8 +78,7 @@ var app = app || {};
 
         validateUser: function() {
             // Login User
-            if(this.readCookie('user_id') != null && this.readCookie('username') != null){
-                this.user_id = this.readCookie('user_id');
+            if(this.readCookie('username') != null){
                 this.username = this.readCookie('username');
                 this.loginUser(this.username);
             } else {
