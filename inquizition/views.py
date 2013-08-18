@@ -49,12 +49,16 @@ def get_random_name():
 
 @app.route('/quiz/<int:quiz_id>', methods=['GET'])
 def get_quiz(quiz_id):
-    ## Find quiz at idone.drexel.edu
+    ## Find quiz at id
     quiz = Quiz.query.get(quiz_id)
 
-    ## TODO: Check that you can only download maybe 10 seconds before it starts
     if quiz:
-        json_results = jsonify(quiz.data())
+        ## Check that you can only download 10 seconds before it starts
+        seconds_left = (quiz.start_time - datetime.now()).seconds
+        if seconds_left < 11 or seconds_left > 360:
+            json_results = jsonify(quiz.data())
+        else:
+            json_results = jsonify(dict())
     else:
         json_results = jsonify(dict())
     ## Convert to json
@@ -179,7 +183,6 @@ def get_random_question():
 
 @app.route('/quiz/answer/<int:quiz_id>', methods=['POST'])
 def answer_quiz(quiz_id):
-    ## TODO: Error handling if they try to answer the same question twice
     ## Get user from request
     user_id = (int)(request.form['user_id'])
     ## Get question from request
@@ -187,12 +190,10 @@ def answer_quiz(quiz_id):
     question_id = request.form['question_id']
     ## Get answer from request
     answer = (int)(request.form['answer'])
-    ## Answer quiz
-    #quiz = Quiz.query.get(quiz_id)
     ## Store response
     response = Response.query.filter(Response.quiz_id == quiz_id).filter(Response.user_id == user_id).filter(Response.question_id == question_id).first()
-
-    response.user_response = answer
+    if response.user_response is None: 
+        response.user_response = answer
 
     now = datetime.now()
     timer = Timer.query.filter(Timer.quiz_id == quiz_id).filter(Timer.user_id == user_id).first()
@@ -203,7 +204,8 @@ def answer_quiz(quiz_id):
     if(time_elapsed.microseconds > 50000):
         seconds += 1
 
-    response.time_elapsed = seconds
+    if response.time_elapsed is None:
+        response.time_elapsed = seconds
     timer.last_answered = datetime.now()
     db.session.commit()
 
@@ -211,11 +213,12 @@ def answer_quiz(quiz_id):
     result = Result.query.filter(Result.quiz_id == quiz_id).filter(Result.user_id == user_id).first()
 
     result_dict = dict()
+
     ## Find out if that response is correct
     correct_answer = Answer.query.get(question.correct_answer_id)
     if(answer == correct_answer.id):
         result_dict['correct'] = 'True'
-        result_dict['text'] = ''
+        result_dict['text'] = correct_answer.text
         result_dict['score'] = result.score
     else:
         result_dict['correct'] = 'False'
@@ -229,10 +232,8 @@ def answer_quiz(quiz_id):
 
 @app.route('/quiz/create', methods=['POST'])
 def create_quiz():
-
     ## Create quiz
     quiz_name = (str)(request.form['quiz_name'])
-    #quiz_name = "HELLO VIETNAM"
     quiz = Quiz(name=quiz_name)
     ## Pick questions for that quiz
     question_list = list()
@@ -254,7 +255,6 @@ def create_quiz():
         seconds_later = (int)(request.form['seconds'])
     quiz.start_time = datetime.now() + timedelta(seconds=seconds_later)
     quiz.end_time = quiz.start_time + timedelta(minutes=10)
-    # REMOVE: quiz.last_answered = quiz.start_time
 
     db.session.add(quiz)
     db.session.commit()
@@ -267,25 +267,29 @@ def create_quiz():
 
 @app.route('/quiz/join/<int:quiz_id>', methods=['GET', 'POST'])
 def join_quiz(quiz_id, user_id=None):
-    ## TODO: Only allow joining once
     ## Get user from request
     if request:
         user = User.query.get(request.form['user_id'])
     else:
         user = User.query.get(user_id)
     quiz = Quiz.query.get(quiz_id)
-    timer = Timer(quiz_id=quiz_id, user_id=user.id, last_answered=datetime.now())
-    ## Create responses for user
-    for index in range(0, 10):
-        questions = json.loads(quiz.questions)
-        response = Response(question_id=questions[index], user_id=user.id, quiz_id=quiz_id)
-        response.correct_response = "A"
-        db.session.add(response)
+    if Timer.query.filter(Timer.quiz_id == quiz_id).filter(Timer.user_id == user.id).first() is None:
+        timer = Timer(quiz_id=quiz_id, user_id=user.id, last_answered=datetime.now())
+        db.session.add(timer)
 
-    db.session.add(timer)
+    if Response.query.filter(Response.quiz_id == quiz_id).filter(Response.user_id == user.id).first() is None:
+        ## Create responses for user
+        for index in range(0, 10):
+            questions = json.loads(quiz.questions)
+            response = Response(question_id=questions[index], user_id=user.id, quiz_id=quiz_id)
+            db.session.add(response)
+
     ## Store responses for user
     db.session.commit()
-    return "JOINED"
+    status_dict = dict()
+    status_dict['status'] = 'JOINED'
+    status_dict['quiz_id'] = quiz_id
+    return jsonify(status_dict)
 
 
 @app.route('/login', methods=['POST'])
