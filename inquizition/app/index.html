@@ -56,7 +56,7 @@
       <section class="top-bar-section">
         <ul class="right">
             <li class="has-dropdown">
-                <a href="#" id="userName">User</a>
+                <a href="#user" id="userName">User</a>
                 <ul class="dropdown">
                   <li ><label>User Actions</label></li>
                   <li><a href="#user">Results</a></li>
@@ -165,7 +165,7 @@
 
     <!-- Quiz Individual Result Template -->
     <script type="text/template" id="user-result-template">
-        <td><%= quizname %></td>
+        <td><a href="#results?<%= id %>"><%= quizname %></a></td>
         <td><%= score %></td>
         <td><%= date %></td>
     </script>
