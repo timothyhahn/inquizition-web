@@ -10,7 +10,6 @@ var app = app || {};
             _.bindAll(this, 'render');
             this.template = _.template($('#question-template').html());
             this.model.bind('change',this.render);
-
         },
         render: function() {
             var renderedContent = this.template(this.model.toJSON());
@@ -39,7 +38,7 @@ var app = app || {};
                 }
                 $result.css('visibility', 'visible');
                 $result.fadeIn(100).fadeOut(100).fadeIn(100).fadeOut(100).fadeIn(100);
-                $('h5#points').html(data['score']);
+                $('h5#quizname').html();
                 $('img#responseLoader').hide();
 
                 app.questionsView.proceedNext();
@@ -58,6 +57,7 @@ var app = app || {};
             _.bindAll(this, 'render');
             this.template = _.template($('#questions-template').html());
             this.collection.bind('reset', this.render);
+
         },
         render: function() {
             var $quiz,
@@ -72,6 +72,7 @@ var app = app || {};
                     $quiz.append(view.render().el);
                 }
             });
+            $('h5#quizName').html(this.collection.name);
             return this;
         },
         showCurrent:function() {

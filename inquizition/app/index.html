@@ -116,7 +116,7 @@
     </script>
 
     <!-- Quiz Results Template -->
-    <script type="text/template" id="results-template">
+    <script type="text/template" id="quiz-results-template">
         <div class="row wrap together" id="results">
             <div class="large-12 columns">
                   <h1>Results:</h1>
@@ -125,6 +125,32 @@
                         <thead>
                         <tr>
                         <th width="200">User</th>
+                        <th width="300">Score</th>
+                        </tr>
+                        </thead>
+                        <!-- // Filled with the results -->
+                        <tbody class="results">
+                        </tbody>
+                    </table>
+            </div>
+        </div>
+    </script>
+
+    <!-- Quiz Individual Result Template -->
+    <script type="text/template" id="quiz-result-template">
+        <td><%= username %></td>
+        <td><%= score %></td>
+    </script>
+        <!-- Quiz Results Template -->
+    <script type="text/template" id="user-results-template">
+        <div class="row wrap together" id="results">
+            <div class="large-12 columns">
+                  <h1>Results:</h1>
+                  <p>Results are continuously updated</p>
+                  <table>
+                        <thead>
+                        <tr>
+                        <th width="200">Quiz Name</th>
                         <th width="300">Score</th>
                         <th>Date</th>
                         </tr>
@@ -138,8 +164,8 @@
     </script>
 
     <!-- Quiz Individual Result Template -->
-    <script type="text/template" id="result-template">
-        <td><%= username %></td>
+    <script type="text/template" id="user-result-template">
+        <td><%= quizname %></td>
         <td><%= score %></td>
         <td><%= date %></td>
     </script>
@@ -171,13 +197,16 @@
         <div class="row wrap together">
             <div class="row " style="margin-left:20px">
             <div class="large-8 columns">
-               <h4>Points</h4>
-              <div id="points"><h5 id ="points">0</h5></div>
+                <h4>Quiz</h4>
+                <h5 id="quizName"></h5>
               </div>
-            <div class="large-4 columns"><br /><img src="/app/img/loader.gif" alt="Loading..." class="loader" id="responseLoader" style="display:none;"/></div>
+            <div class="large-4 columns">
+               <h4>Points</h4>
+              <div id="points"><h5 id ="points">0</h5></div><br /><img src="/app/img/loader.gif" alt="Loading..." class="loader" id="responseLoader" style="display:none;"/></div>
             </div>
             <div class="row">
                 <div class="large-12 columns">
+
                 <div data-alert class="alert-box success" id="result" style="visibility:hidden;">
 
                     <a href="#" class="close">&times;</a></div>

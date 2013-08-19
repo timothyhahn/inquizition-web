@@ -120,7 +120,7 @@ var app = app || {};
       app.userResults = new app.UserResults(app.loginView.user_id);
       app.userResults.fetch().complete(function () {
         $result.hide();
-        app.userResultsView = new app.ResultsView({collection: app.userResults});
+        app.userResultsView = new app.UserResultsView({collection: app.userResults});
         $container.append(app.userResultsView.render().el);
       });
     }

@@ -5,6 +5,7 @@ var app = app || {};
   app.Questions = Backbone.Collection.extend({
     model: app.Question,
     parse: function (response) {
+      this.name = response.name;
       return response.questions;
     },
     initialize: function (id) {

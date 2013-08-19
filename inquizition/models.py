@@ -126,6 +126,7 @@ class Result(db.Model):
         result_dict['user_id'] = self.user_id
         result_dict['username'] = User.query.get(self.user_id).name
         result_dict['date'] = self.date
+        result_dict['quizname'] = Quiz.query.get(self.quiz_id).name
 
         return result_dict
 
