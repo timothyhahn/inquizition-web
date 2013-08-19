@@ -38,7 +38,7 @@ var app = app || {};
                 }
                 $result.css('visibility', 'visible');
                 $result.fadeIn(100).fadeOut(100).fadeIn(100).fadeOut(100).fadeIn(100);
-                $('h5#quizname').html();
+                $('h5#points').html(data['score']);
                 $('img#responseLoader').hide();
 
                 app.questionsView.proceedNext();
