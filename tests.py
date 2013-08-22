@@ -4,6 +4,7 @@ import unittest
 import tempfile
 from flask import json
 import inquizition
+from inquizition import database, helpers
 
 
 class InquizitionTestCase(unittest.TestCase):
