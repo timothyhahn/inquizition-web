@@ -1,4 +1,4 @@
-# Inquizition
+# Inquizition!
 
 > The webservice portion of our "Inquizition" application, a trivia quiz game with friends.
 
