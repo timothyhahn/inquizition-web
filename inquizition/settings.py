@@ -1,9 +1,12 @@
 ## Debug Mode (Default: False)
-debug = True
+debug = False
 
-## Secret Key (Replace with your own secret key0
-secret_key = 'secret'
+## Secret Key (Replace with your own secret key) 
+secret_key = 'secret' # Doesn't matter too much right now.
 
-from os.path import expanduser
-home = expanduser("~")
-database_path = 'sqlite:///' + home + '/inquizition.db'
+#from os.path import expanduser
+#home = expanduser("~")
+#database_path = 'sqlite:///' + home + '/inquizition.db'
+import os
+
+database_path = os.environ['DATABASE_URL']
