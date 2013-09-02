@@ -134,7 +134,7 @@ class Result(db.Model):
 class Question(db.Model):
     __tablename__ = 'question'
     id = db.Column(db.Integer, primary_key=True)
-    text = db.Column(db.String(120), nullable=False)
+    text = db.Column(db.String(250), nullable=False)
     correct_answer_id = db.Column(db.Integer)
     responses = db.relationship('Response', backref='question')
     answers = db.relationship('Answer', backref='question')
@@ -163,7 +163,7 @@ class Question(db.Model):
 class Answer(db.Model):
     __tablename__ = 'answer'
     id = db.Column(db.Integer, primary_key=True)
-    text = db.Column(db.String(120), nullable=False)
+    text = db.Column(db.String(250), nullable=False)
     question_id = db.Column(db.Integer, db.ForeignKey('question.id'), nullable=False)
 
     def __init__(self, text=None, question_id=None):
