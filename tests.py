@@ -25,7 +25,7 @@ class InquizitionTestCase(unittest.TestCase):
 
     def test_static_redirect(self):
         rv = self.app.get('/')
-        assert "You should be redirected" in rv.data
+        assert "You should not be redirected" in rv.data
         assert "app/index.html" in rv.data
 
     def sampleQuiz(self):
