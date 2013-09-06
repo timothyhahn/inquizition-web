@@ -138,8 +138,8 @@
 
     <!-- Quiz Individual Result Template -->
     <script type="text/template" id="quiz-result-template">
-        <td><%= username %></td>
-        <td><%= score %></td>
+        <td><%- username %></td>
+        <td><%- score %></td>
     </script>
         <!-- Quiz Results Template -->
     <script type="text/template" id="user-results-template">
@@ -165,18 +165,18 @@
 
     <!-- Quiz Individual Result Template -->
     <script type="text/template" id="user-result-template">
-        <td><a href="#results?<%= quiz_id %>"><%= quizname %></a></td>
-        <td><%= score %></td>
-        <td><%= date %></td>
+        <td><a href="#results?<%- quiz_id %>"><%- quizname %></a></td>
+        <td><%- score %></td>
+        <td><%- date %></td>
     </script>
 
     <!-- Quiz Information Template -->
     <script type="text/template" id="quiz-template">
       <% if (parseInt(secondsLeft) > 0) { %>
-        <button data-id="<%= id %>" class="large button expand join">
-          <%= name %>
+        <button data-id="<%- id %>" class="large button expand join">
+          <%- name %>
           <br />
-          Starting in: <%= secondsLeft %> seconds 
+          Starting in: <%- secondsLeft %> seconds 
         </button>
       <% } %>
     </script>
@@ -184,9 +184,9 @@
     <!-- Question Template -->
     <script type="text/template" id="question-template">
         <div class="large-12 columns">
-            <h3><%= text %></h3>
+            <h3><%- text %></h3>
             <% _.each(answers, function(answer){ %>
-                <button class="large button expand answer" data-id="<%= answer.id%>"><%= answer.text %></button>
+                <button class="large button expand answer" data-id="<%- answer.id%>"><%- answer.text %></button>
             <% }); %>
         </div>
     </script>
@@ -245,7 +245,7 @@
                 <!-- //Quiz Name -->
                 <div class="large-12 columns"> 
                     <label>Quiz Name:</label>
-                    <input type="text" placeholder="Generating Quiz Name..." id="quizName" value="<%= quizName %>"></input>
+                    <input type="text" placeholder="Generating Quiz Name..." id="quizName" value="<%- quizName %>"></input>
                 </div>
             </div>
 
