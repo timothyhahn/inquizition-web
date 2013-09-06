@@ -9,4 +9,7 @@ secret_key = 'secret' # Doesn't matter too much right now.
 #database_path = 'sqlite:///' + home + '/inquizition.db'
 import os
 
-database_path = os.environ['DATABASE_URL']
+if 'DATABASE_URL' in os.environ:
+	database_path = os.environ['DATABASE_URL']
+else:
+	database_path = 'postgresql://postgres@localhost/inquizition'

@@ -81,13 +81,16 @@ def purge_db():
 @manager.command
 def test():
     import subprocess
-    subprocess.call(['nosetests'])
+    result = subprocess.call(['nosetests'])
+    return result
+    
 
 
 @manager.command
 def coverage():
     import subprocess
-    subprocess.call(['nosetests', '--with-coverage', '--cover-erase', '--cover-package=inquizition', '--cover-html'])
+    result = subprocess.call(['nosetests', '--with-coverage', '--cover-erase', '--cover-package=inquizition', '--cover-html'])
+    return result
 
 if __name__ == "__main__":
     manager.run()
